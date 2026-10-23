@@ -1,3 +1,5 @@
+import { usePreferences } from '@/hooks/usePreferences';
+import { PrefContext } from '@/context/PrefContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/sections/Hero';
@@ -12,23 +14,27 @@ import { FAQ } from '@/sections/FAQ';
 import { FinalCTA } from '@/sections/FinalCTA';
 
 function App() {
+  const prefs = usePreferences();
+
   return (
-    <div className="min-h-screen bg-ivory-100">
-      <Header />
-      <main>
-        <Hero />
-        <Services />
-        <Guidance />
-        <Portfolio />
-        <Trust />
-        <Reviews />
-        <Process />
-        <Contact />
-        <FAQ />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </div>
+    <PrefContext.Provider value={prefs}>
+      <div className="min-h-screen bg-ivory-100 transition-colors duration-300 dark:bg-ink-950">
+        <Header />
+        <main>
+          <Hero />
+          <Services />
+          <Guidance />
+          <Portfolio />
+          <Trust />
+          <Process />
+          <Reviews />
+          <Contact />
+          <FAQ />
+          <FinalCTA />
+        </main>
+        <Footer />
+      </div>
+    </PrefContext.Provider>
   );
 }
 

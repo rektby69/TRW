@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
-import { CheckCircle2, AlertCircle, Loader2, Send } from 'lucide-react';
-import { FORM_PROJECT_TYPES, FORM_TIMING } from '@/data/content';
+import { CircleCheck as CheckCircle2, CircleAlert as AlertCircle, Loader as Loader2, Send } from 'lucide-react';
+import { FORM } from '@/data/content';
+import { useLang } from '@/context/PrefContext';
 import { cn } from '@/utils/cn';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -30,6 +31,9 @@ const EMPTY: FormState = {
 };
 
 export function LeadForm() {
+  const lang = useLang();
+  const t = FORM[lang];
+
   const [form, setForm] = useState<FormState>(EMPTY);
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -41,15 +45,15 @@ export function LeadForm() {
 
   function validate(): Record<string, string> {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = 'Introduce tu nombre.';
+    if (!form.name.trim()) e.name = t.nameError;
     if (!form.phone.trim() && !form.email.trim()) {
-      e.contact = 'Necesitamos un teléfono o un email para contactarte.';
+      e.contact = t.contactError;
     }
     if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      e.email = 'El email no parece válido.';
+      e.email = t.emailError;
     }
-    if (!form.projectType) e.projectType = 'Selecciona un tipo de proyecto.';
-    if (!form.consent) e.consent = 'Necesitamos que aceptes la política de privacidad.';
+    if (!form.projectType) e.projectType = t.projectTypeError;
+    if (!form.consent) e.consent = t.consentError;
     return e;
   }
 
@@ -60,28 +64,23 @@ export function LeadForm() {
     if (Object.keys(e).length > 0) return;
 
     setStatus('submitting');
-    // Demo mode: no backend connected. Simulate a brief processing delay,
-    // then show an honest notice that the form is not yet wired up.
     await new Promise((r) => setTimeout(r, 900));
     setStatus('error');
   }
 
   if (status === 'success') {
     return (
-      <div className="mx-auto max-w-lg rounded-2xl bg-forest-50 p-8 text-center ring-1 ring-forest-200">
-        <CheckCircle2 className="mx-auto h-12 w-12 text-forest-600" />
-        <h3 className="mt-4 text-xl font-display text-forest-900">¡Gracias!</h3>
-        <p className="mt-2 text-sm text-ink-500">
-          Hemos recibido tu solicitud. Nos pondremos en contacto contigo lo antes posible.
-        </p>
+      <div className="mx-auto max-w-lg rounded-2xl bg-forest-50 p-8 text-center ring-1 ring-forest-200 dark:bg-forest-800/30 dark:ring-forest-700">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-forest-600 dark:text-forest-300" />
+        <h3 className="mt-4 text-xl font-display font-normal text-forest-900 dark:text-ivory-100">{t.successTitle}</h3>
+        <p className="mt-2 text-sm text-ink-600 dark:text-ivory-300/70">{t.successText}</p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
-      {/* Name */}
-      <Field label="Nombre" required error={errors.name}>
+      <Field label={t.nameLabel} required error={errors.name}>
         <input
           type="text"
           value={form.name}
@@ -91,9 +90,8 @@ export function LeadForm() {
         />
       </Field>
 
-      {/* Contact: phone + email */}
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Teléfono" error={errors.contact} hint={!errors.contact && !form.phone && !form.email ? 'Indica teléfono o email' : undefined}>
+        <Field label={t.phoneLabel} error={errors.contact} hint={!errors.contact && !form.phone && !form.email ? t.contactHint : undefined}>
           <input
             type="tel"
             value={form.phone}
@@ -102,7 +100,7 @@ export function LeadForm() {
             autoComplete="tel"
           />
         </Field>
-        <Field label="Email" error={errors.email}>
+        <Field label={t.emailLabel} error={errors.email}>
           <input
             type="email"
             value={form.email}
@@ -113,32 +111,30 @@ export function LeadForm() {
         </Field>
       </div>
       {errors.contact && (
-        <p className="-mt-2 text-sm text-clay-600">{errors.contact}</p>
+        <p className="-mt-2 text-sm text-clay-600 dark:text-clay-400">{errors.contact}</p>
       )}
 
-      {/* Project type */}
-      <Field label="Tipo de proyecto" required error={errors.projectType}>
+      <Field label={t.projectTypeLabel} required error={errors.projectType}>
         <div className="flex flex-wrap gap-2">
-          {FORM_PROJECT_TYPES.map((t) => (
+          {t.projectTypes.map((type) => (
             <button
-              key={t}
+              key={type}
               type="button"
-              onClick={() => update('projectType', t)}
+              onClick={() => update('projectType', type)}
               className={cn(
-                'rounded-full border px-5 py-2.5 text-sm font-medium transition-colors',
-                form.projectType === t
-                  ? 'border-forest-800 bg-forest-800 text-ivory-50'
-                  : 'border-stone-300 bg-ivory-50 text-ink-600 hover:border-forest-400',
+                'rounded-full border px-5 py-2.5 text-sm font-medium transition-all duration-200',
+                form.projectType === type
+                  ? 'border-forest-800 bg-forest-800 text-ivory-50 dark:border-forest-600 dark:bg-forest-700'
+                  : 'border-stone-300 bg-ivory-50 text-ink-600 hover:border-forest-400 dark:border-ink-600 dark:bg-ink-700 dark:text-ivory-300 dark:hover:border-forest-500',
               )}
             >
-              {t}
+              {type}
             </button>
           ))}
         </div>
       </Field>
 
-      {/* Location */}
-      <Field label="Ubicación o código postal" hint="Opcional">
+      <Field label={t.locationLabel} hint={t.locationHint}>
         <input
           type="text"
           value={form.location}
@@ -147,95 +143,78 @@ export function LeadForm() {
         />
       </Field>
 
-      {/* Timing */}
-      <Field label="Plazo aproximado" hint="Opcional">
+      <Field label={t.timingLabel} hint={t.timingHint}>
         <select
           value={form.timing}
           onChange={(e) => update('timing', e.target.value)}
           className={inputCls(false)}
         >
-          <option value="">Selecciona una opción…</option>
-          {FORM_TIMING.map((t) => (
-            <option key={t} value={t}>{t}</option>
+          <option value="">{t.selectOption}</option>
+          {t.timingOptions.map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
           ))}
         </select>
       </Field>
 
-      {/* Budget */}
-      <Field label="Presupuesto aproximado" hint="Opcional y orientativo">
+      <Field label={t.budgetLabel} hint={t.budgetHint}>
         <select
           value={form.budget}
           onChange={(e) => update('budget', e.target.value)}
           className={inputCls(false)}
         >
-          <option value="">Selecciona un rango…</option>
-          <option value="hasta 5.000 €">Hasta 5.000 €</option>
-          <option value="5.000 – 15.000 €">5.000 – 15.000 €</option>
-          <option value="15.000 – 30.000 €">15.000 – 30.000 €</option>
-          <option value="más de 30.000 €">Más de 30.000 €</option>
-          <option value="no lo sé">Todavía no lo sé</option>
+          <option value="">{t.selectOption}</option>
+          {t.budgetOptions.map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
         </select>
       </Field>
 
-      {/* Description */}
-      <Field label="Cuéntanos tu proyecto" hint="Opcional — unas líneas son suficientes">
+      <Field label={t.descriptionLabel} hint={t.descriptionHint}>
         <textarea
           value={form.description}
           onChange={(e) => update('description', e.target.value)}
           rows={4}
           className={cn(inputCls(false), 'resize-y')}
-          placeholder="Qué quieres cambiar, qué es lo más importante para ti, cualquier duda que tengas…"
+          placeholder={t.descriptionPlaceholder}
         />
       </Field>
 
-      {/* Consent */}
       <div>
-        <label className="flex items-start gap-3 text-sm text-ink-600">
+        <label className="flex items-start gap-3 text-sm text-ink-600 dark:text-ivory-300/70">
           <input
             type="checkbox"
             checked={form.consent}
             onChange={(e) => update('consent', e.target.checked)}
-            className="mt-0.5 h-4.5 w-4.5 rounded border-stone-300 text-forest-700"
+            className="mt-0.5 h-4.5 w-4.5 rounded border-stone-300 text-forest-700 dark:border-ink-600 dark:bg-ink-700"
           />
-          <span>
-            Acepto que mis datos se utilicen para responder a esta solicitud.
-            [Política de privacidad placeholder — sustitúyela por el texto
-            real antes de publicar.]
-          </span>
+          <span>{t.consentText}</span>
         </label>
         {errors.consent && (
-          <p className="mt-1.5 text-sm text-clay-600">{errors.consent}</p>
+          <p className="mt-1.5 text-sm text-clay-600 dark:text-clay-400">{errors.consent}</p>
         )}
       </div>
 
-      {/* Error notice (demo mode) */}
       {status === 'error' && (
-        <div className="flex items-start gap-3 rounded-xl border border-clay-200 bg-clay-50 p-4 text-sm text-clay-800">
+        <div className="flex items-start gap-3 rounded-xl border border-clay-200 bg-clay-50 p-4 text-sm text-clay-800 dark:border-clay-500/30 dark:bg-clay-500/10 dark:text-clay-200">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-          <p>
-            Esta es una demostración: el formulario no está conectado a un
-            servidor todavía. Introduce los datos y pulsa para ver la
-            validación, pero el envío no se procesará hasta que se configure
-            el backend.
-          </p>
+          <p>{t.errorNotice}</p>
         </div>
       )}
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-clay-500 px-7 py-4 text-sm font-semibold text-white shadow-sm shadow-clay-900/20 transition-colors hover:bg-clay-600 disabled:opacity-60 sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-clay-500 px-7 py-4 text-sm font-semibold text-white shadow-sm shadow-clay-900/20 transition-all hover:bg-clay-600 active:scale-[0.98] disabled:opacity-60 sm:w-auto"
       >
         {status === 'submitting' ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Enviando…
+            {t.submitting}
           </>
         ) : (
           <>
             <Send className="h-4 w-4" />
-            Solicitar presupuesto
+            {t.submitBtn}
           </>
         )}
       </button>
@@ -243,15 +222,13 @@ export function LeadForm() {
   );
 }
 
-/* ---------- helpers ---------- */
-
 function inputCls(hasError: boolean): string {
   return cn(
-    'w-full rounded-xl border bg-ivory-50 px-4 py-3 text-sm text-ink-800 transition-colors',
-    'placeholder:text-ink-300',
+    'w-full rounded-xl border bg-ivory-50 px-4 py-3 text-sm text-ink-800 transition-colors dark:bg-ink-700 dark:text-ivory-100',
+    'placeholder:text-ink-300 dark:placeholder:text-ivory-300/30',
     hasError
       ? 'border-clay-400 ring-1 ring-clay-400/30'
-      : 'border-stone-300 focus:border-forest-500',
+      : 'border-stone-300 focus:border-forest-500 dark:border-ink-600 dark:focus:border-forest-500',
   );
 }
 
@@ -271,16 +248,16 @@ function Field({
   return (
     <div>
       <label className="flex items-baseline justify-between">
-        <span className="text-sm font-semibold text-ink-700">
+        <span className="text-sm font-semibold text-ink-700 dark:text-ivory-200">
           {label}
           {required && <span className="ml-1 text-clay-500">*</span>}
         </span>
         {hint && !error && (
-          <span className="text-xs text-ink-400">{hint}</span>
+          <span className="text-xs text-ink-400 dark:text-ivory-300/40">{hint}</span>
         )}
       </label>
       <div className="mt-1.5">{children}</div>
-      {error && <p className="mt-1 text-sm text-clay-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-clay-600 dark:text-clay-400">{error}</p>}
     </div>
   );
 }

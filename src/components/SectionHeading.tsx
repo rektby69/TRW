@@ -30,8 +30,8 @@ export function SectionHeading({
       {eyebrow && (
         <span
           className={cn(
-            'text-xs font-semibold uppercase tracking-[0.18em]',
-            dark ? 'text-clay-300' : 'text-clay-500',
+            'text-micro font-semibold uppercase',
+            dark ? 'text-clay-400' : 'text-clay-500',
           )}
         >
           {eyebrow}
@@ -39,8 +39,8 @@ export function SectionHeading({
       )}
       <h2
         className={cn(
-          'mt-3 text-h2 font-display',
-          dark ? 'text-ivory-50' : 'text-forest-900',
+          'mt-4 text-h2 font-display font-normal text-balance',
+          dark ? 'text-ivory-50' : 'text-forest-800 dark:text-ivory-100',
         )}
       >
         {title}
@@ -48,8 +48,8 @@ export function SectionHeading({
       {description && (
         <p
           className={cn(
-            'mt-4 text-base leading-relaxed',
-            dark ? 'text-ivory-200/80' : 'text-ink-500',
+            'mt-5 text-body leading-relaxed text-pretty',
+            dark ? 'text-ivory-200/70' : 'text-ink-600 dark:text-ivory-300/70',
           )}
         >
           {description}

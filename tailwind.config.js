@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -14,8 +15,8 @@ export default {
           600: '#43514e',
           700: '#36413f',
           800: '#2c3533',
-          900: '#1f2625',
-          950: '#131817',
+          900: '#252923',
+          950: '#161815',
         },
         forest: {
           50: '#f0f6f3',
@@ -26,9 +27,9 @@ export default {
           500: '#42785f',
           600: '#33614b',
           700: '#294d3c',
-          800: '#223d30',
-          900: '#1a2f25',
-          950: '#0f1c16',
+          800: '#19352b',
+          900: '#10251e',
+          950: '#0a1813',
         },
         clay: {
           50: '#fbf4f0',
@@ -36,7 +37,7 @@ export default {
           200: '#e9c4b0',
           300: '#d99e7d',
           400: '#c87a4f',
-          500: '#b85f35',
+          500: '#b85f3a',
           600: '#a04929',
           700: '#823a23',
           800: '#673020',
@@ -44,11 +45,13 @@ export default {
           950: '#2c140d',
         },
         ivory: {
+          0: '#ffffff',
           50: '#fdfcf9',
           100: '#faf7f1',
           200: '#f4eee2',
           300: '#ebe2d0',
           400: '#dccfb5',
+          500: '#c8ba9d',
         },
         stone: {
           50: '#f7f6f4',
@@ -65,33 +68,57 @@ export default {
       },
       spacing: {
         '4.5': '1.125rem',
+        '18': '4.5rem',
+        '22': '5.5rem',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
         display: ['"Fraunces"', 'Georgia', 'serif'],
       },
       fontSize: {
-        'display': ['clamp(2.5rem, 6vw, 4.5rem)', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
-        'h1': ['clamp(2rem, 4.5vw, 3.25rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
-        'h2': ['clamp(1.6rem, 3.2vw, 2.5rem)', { lineHeight: '1.15', letterSpacing: '-0.01em' }],
-        'h3': ['clamp(1.25rem, 2vw, 1.6rem)', { lineHeight: '1.2' }],
+        'display': ['clamp(2.75rem, 6vw, 5rem)', { lineHeight: '1.02', letterSpacing: '-0.03em' }],
+        'h1': ['clamp(2.25rem, 5vw, 3.75rem)', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
+        'h2': ['clamp(1.75rem, 3.5vw, 2.75rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
+        'h3': ['clamp(1.375rem, 2.2vw, 1.75rem)', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
+        'h4': ['clamp(1.125rem, 1.5vw, 1.375rem)', { lineHeight: '1.25' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.7' }],
+        'body': ['1rem', { lineHeight: '1.7' }],
+        'caption': ['0.8125rem', { lineHeight: '1.5' }],
+        'micro': ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0.08em' }],
       },
       maxWidth: {
         '8xl': '88rem',
+        '9xl': '96rem',
+      },
+      borderRadius: {
+        '4xl': '2rem',
       },
       keyframes: {
         'fade-up': {
-          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         'fade-in': {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        'slide-in-right': {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'ken-burns': {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(1.08)' },
+        },
       },
       animation: {
-        'fade-up': 'fade-up 0.6s ease-out both',
-        'fade-in': 'fade-in 0.5s ease-out both',
+        'fade-up': 'fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'fade-in': 'fade-in 0.6s ease-out both',
+        'slide-in-right': 'slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'ken-burns': 'ken-burns 12s ease-out both',
+      },
+      transitionTimingFunction: {
+        'smooth-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
     },
   },
