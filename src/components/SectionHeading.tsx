@@ -30,17 +30,20 @@ export function SectionHeading({
       {eyebrow && (
         <span
           className={cn(
-            'text-micro font-semibold uppercase',
-            dark ? 'text-clay-400' : 'text-clay-500',
+            'inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-micro font-semibold uppercase tracking-[0.14em]',
+            dark
+              ? 'bg-clay-400/15 text-clay-200'
+              : 'bg-sage-100/80 text-sage-700 dark:bg-sage-900/50 dark:text-sage-300',
           )}
         >
+          {align === 'center' && <span className={cn('h-1.5 w-1.5 rounded-full', dark ? 'bg-clay-300' : 'bg-clay-400')} />}
           {eyebrow}
         </span>
       )}
       <h2
         className={cn(
           'mt-4 text-h2 font-display font-normal text-balance',
-          dark ? 'text-ivory-50' : 'text-forest-800 dark:text-ivory-100',
+          dark ? 'text-ivory-50' : 'text-sage-800 dark:text-ivory-100',
         )}
       >
         {title}

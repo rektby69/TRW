@@ -1,4 +1,4 @@
-import { Hammer, Phone, Mail, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { FOOTER, NAV_LINKS, CONTACT } from '@/data/content';
 import { useLang } from '@/context/PrefContext';
 
@@ -10,41 +10,17 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-forest-950 py-14 dark:bg-ink-950">
-      <div className="mx-auto max-w-8xl px-6 lg:px-10">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+    <footer className="relative overflow-hidden bg-sage-950 py-14 dark:bg-ink-950">
+      <div className="pointer-events-none absolute -right-20 -top-10 h-56 w-56 rounded-full bg-sage-800/30 blur-3xl" />
+
+      <div className="relative mx-auto max-w-8xl px-6 lg:px-10">
+        <div className="grid gap-10 md:grid-cols-3 lg:gap-12">
           {/* Brand + tagline */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-2.5 text-ivory-50">
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-forest-800 dark:bg-forest-700">
-                <Hammer className="h-4.5 w-4.5" strokeWidth={2.2} />
-              </span>
-              <span className="text-lg font-semibold tracking-tight font-display">
-                {t.brand}
-              </span>
-            </div>
+          <div>
+            <img src="/logo.svg" alt={t.brand} className="h-14 w-auto" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ivory-200/50">
               {t.tagline}
             </p>
-          </div>
-
-          {/* Services */}
-          <div>
-            <h3 className="text-micro font-semibold uppercase tracking-[0.12em] text-ivory-200/40">
-              {t.servicesTitle}
-            </h3>
-            <ul className="mt-4 space-y-2">
-              {t.services.map((s) => (
-                <li key={s}>
-                  <a
-                    href="#servicios"
-                    className="text-sm text-ivory-200/60 transition-colors hover:text-ivory-50"
-                  >
-                    {s}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Navigation */}
@@ -52,7 +28,7 @@ export function Footer() {
             <h3 className="text-micro font-semibold uppercase tracking-[0.12em] text-ivory-200/40">
               {t.navTitle}
             </h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-2.5">
               {links.map((l) => (
                 <li key={l.href}>
                   <a
@@ -72,32 +48,24 @@ export function Footer() {
               {t.contactTitle}
             </h3>
             <ul className="mt-4 space-y-3">
-              <li className="flex items-center gap-2.5 text-sm text-ivory-200/60">
-                <Phone className="h-4 w-4 shrink-0 text-ivory-200/40" />
-                {contact.phoneValue}
-              </li>
-              <li className="flex items-center gap-2.5 text-sm text-ivory-200/60">
-                <Mail className="h-4 w-4 shrink-0 text-ivory-200/40" />
-                {contact.emailValue}
-              </li>
-              <li className="flex items-center gap-2.5 text-sm text-ivory-200/60">
-                <MapPin className="h-4 w-4 shrink-0 text-ivory-200/40" />
-                {contact.areaValue}
+              <li className="flex items-start gap-2.5 text-sm text-ivory-200/60">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ivory-200/40" />
+                <span>{contact.addressValue}<br />{contact.cityValue}</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-start justify-between gap-6 border-t border-forest-800/50 pt-6 sm:flex-row sm:items-center">
+        <div className="mt-10 flex flex-col gap-4 border-t border-sage-800/50 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-ivory-200/40">
             {t.copyright.replace('{year}', String(year))}
           </p>
-          <div className="flex gap-5">
-            <a href="#" className="text-sm text-ivory-200/40 transition-colors hover:text-ivory-200/70">{t.privacy}</a>
-            <a href="#" className="text-sm text-ivory-200/40 transition-colors hover:text-ivory-200/70">{t.terms}</a>
-            <a href="#" className="text-sm text-ivory-200/40 transition-colors hover:text-ivory-200/70">{t.cookies}</a>
-          </div>
+          <ul className="flex flex-wrap gap-x-5 gap-y-2">
+            <li><a href="#" className="text-sm text-ivory-200/40 transition-colors hover:text-ivory-50">{t.privacy}</a></li>
+            <li><a href="#" className="text-sm text-ivory-200/40 transition-colors hover:text-ivory-50">{t.terms}</a></li>
+            <li><a href="#" className="text-sm text-ivory-200/40 transition-colors hover:text-ivory-50">{t.cookies}</a></li>
+          </ul>
         </div>
       </div>
     </footer>

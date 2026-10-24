@@ -1,8 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  MessageSquare, Compass, ClipboardCheck,
-  Hammer, Ruler, ShieldCheck, Layers,
-  PencilRuler, HandCoins, CalendarCheck,
+  Flower2, Wind, Sparkles, CircleDot, Dumbbell,
+  Users, HeartHandshake, Sprout,
 } from 'lucide-react';
 
 import type { Lang } from '@/hooks/usePreferences';
@@ -11,17 +10,15 @@ import type { Lang } from '@/hooks/usePreferences';
 
 export const NAV_LINKS: Record<Lang, { label: string; href: string }[]> = {
   es: [
-    { label: 'Servicios', href: '#servicios' },
-    { label: 'Proyectos', href: '#proyectos' },
-    { label: 'Proceso', href: '#proceso' },
-    { label: 'Preguntas', href: '#faq' },
+    { label: 'Clases', href: '#clases' },
+    { label: 'Horarios', href: '#horarios' },
+    { label: 'El centro', href: '#centro' },
     { label: 'Contacto', href: '#contacto' },
   ],
   en: [
-    { label: 'Services', href: '#servicios' },
-    { label: 'Projects', href: '#proyectos' },
-    { label: 'Process', href: '#proceso' },
-    { label: 'FAQ', href: '#faq' },
+    { label: 'Classes', href: '#clases' },
+    { label: 'Schedule', href: '#horarios' },
+    { label: 'The studio', href: '#centro' },
     { label: 'Contact', href: '#contacto' },
   ],
 };
@@ -43,551 +40,619 @@ export const HERO: Record<Lang, {
   stat3Label: string;
 }> = {
   es: {
-    eyebrow: 'Reformas de cocinas y baños',
-    title: 'Una cocina o un baño que',
-    titleAccent: 'encaja contigo',
-    subtitle: 'Te acompañamos en las decisiones importantes para crear un espacio funcional, cuidado y pensado para tu hogar.',
-    primaryCta: 'Solicita un presupuesto',
-    secondaryCta: 'Ver proyectos',
-    stat1Value: '15+',
-    stat1Label: 'años de oficio',
-    stat2Value: '200+',
-    stat2Label: 'reformas completadas',
-    stat3Value: '100%',
-    stat3Label: 'presupuesto sin compromiso',
+    eyebrow: 'Yoga · Pilates · Movimiento consciente',
+    title: 'Encuentra tu espacio para',
+    titleAccent: 'moverte, respirar y sentirte mejor',
+    subtitle: 'Yoga, Pilates y movimiento consciente en Córdoba. Encuentra la clase que encaja contigo y consulta los próximos horarios.',
+    primaryCta: 'Ver horarios',
+    secondaryCta: 'Descubrir las clases',
+    stat1Value: '6',
+    stat1Label: 'disciplinas distintas',
+    stat2Value: '10',
+    stat2Label: 'plazas máx. por grupo',
+    stat3Value: '1',
+    stat3Label: 'estudio en el centro de Córdoba',
   },
   en: {
-    eyebrow: 'Kitchen & bathroom renovations',
-    title: 'A kitchen or bathroom that',
-    titleAccent: 'fits you',
-    subtitle: 'We guide you through the important decisions to create a functional, well-crafted space designed for your home.',
-    primaryCta: 'Request a quote',
-    secondaryCta: 'View projects',
-    stat1Value: '15+',
-    stat1Label: 'years of craft',
-    stat2Value: '200+',
-    stat2Label: 'renovations completed',
-    stat3Value: '100%',
-    stat3Label: 'obligation-free quotes',
+    eyebrow: 'Yoga · Pilates · Mindful movement',
+    title: 'Find your space to',
+    titleAccent: 'move, breathe and feel better',
+    subtitle: 'Yoga, Pilates and mindful movement in Córdoba. Find the class that fits you and check the upcoming schedule.',
+    primaryCta: 'View schedule',
+    secondaryCta: 'Discover the classes',
+    stat1Value: '6',
+    stat1Label: 'different disciplines',
+    stat2Value: '10',
+    stat2Label: 'max. places per group',
+    stat3Value: '1',
+    stat3Label: 'studio in central Córdoba',
   },
 };
 
-/* ---------- SERVICES ---------- */
+/* ---------- DISCIPLINES (Class Categories) ---------- */
 
-export type ServiceItem = {
+export type Discipline = {
+  id: string;
+  name: string;
+  short: string;
+  description: string;
+  level: string;
+  duration: string;
+  capacity: number;
+  image: string;
+  icon: LucideIcon;
+  accent: string;
+};
+
+export const DISCIPLINES: Record<Lang, Discipline[]> = {
+  es: [
+    {
+      id: 'yoga',
+      name: 'Yoga',
+      short: 'Movimiento, respiración y atención consciente.',
+      description: 'Una práctica centrada en el movimiento, la respiración, el equilibrio y la atención plena. Adaptamos cada sesión al nivel del grupo.',
+      level: 'Todos los niveles',
+      duration: '60 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/3822672/pexels-photo-3822672.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Flower2,
+      accent: 'sage',
+    },
+    {
+      id: 'yoga-aereo',
+      name: 'Yoga aéreo',
+      short: 'Práctica en suspensión con telas o hamacas.',
+      description: 'Una clase distintiva que utiliza telas suspendidas o hamacas para explorar posturas con apoyo, descompresión y juego.',
+      level: 'Iniciación e intermedio',
+      duration: '60 min',
+      capacity: 6,
+      image: 'https://images.pexels.com/photos/4999488/pexels-photo-4999488.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Wind,
+      accent: 'clay',
+    },
+    {
+      id: 'meditacion',
+      name: 'Meditación',
+      short: 'Atención, respiración y quietud.',
+      description: 'Una práctica dedicada a la atención, la respiración y el silencio. Un espacio para parar, observar y descansar la mente.',
+      level: 'Todos los niveles',
+      duration: '45 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/6648595/pexels-photo-6648595.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Sparkles,
+      accent: 'sage',
+    },
+    {
+      id: 'pilates-suelo',
+      name: 'Pilates suelo',
+      short: 'Pilates con peso corporal y material.',
+      description: 'Pilates sobre colchoneta utilizando el peso corporal y material de apoyo para trabajar fuerza, control y alineación.',
+      level: 'Todos los niveles',
+      duration: '55 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/25596885/pexels-photo-25596885.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: CircleDot,
+      accent: 'sage',
+    },
+    {
+      id: 'pilates-reformer',
+      name: 'Pilates Reformer',
+      short: 'Pilates con reformer y resistencia de muelles.',
+      description: 'Pilates sobre máquinas reformer, utilizando la resistencia de los muelles para un trabajo preciso, fluido y adaptado.',
+      level: 'Iniciación e intermedio',
+      duration: '55 min',
+      capacity: 5,
+      image: 'https://images.pexels.com/photos/33360222/pexels-photo-33360222.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: CircleDot,
+      accent: 'clay',
+    },
+    {
+      id: 'fuerza',
+      name: 'Entrenamiento de fuerza',
+      short: 'Sesiones de fuerza complementarias.',
+      description: 'Sesiones centradas en la fuerza que complementan las prácticas de movimiento del estudio, con un enfoque funcional y progresivo.',
+      level: 'Intermedio',
+      duration: '50 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/38755281/pexels-photo-38755281.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Dumbbell,
+      accent: 'clay',
+    },
+  ],
+  en: [
+    {
+      id: 'yoga',
+      name: 'Yoga',
+      short: 'Movement, breath and mindful attention.',
+      description: 'A practice focused on movement, breathing, balance and mindful attention. We adapt each session to the group level.',
+      level: 'All levels',
+      duration: '60 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/3822672/pexels-photo-3822672.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Flower2,
+      accent: 'sage',
+    },
+    {
+      id: 'yoga-aereo',
+      name: 'Aerial yoga',
+      short: 'Suspended practice with fabric hammocks.',
+      description: 'A distinctive class using suspended fabric or hammocks to explore supported postures, decompression and play.',
+      level: 'Beginner & intermediate',
+      duration: '60 min',
+      capacity: 6,
+      image: 'https://images.pexels.com/photos/4999488/pexels-photo-4999488.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Wind,
+      accent: 'clay',
+    },
+    {
+      id: 'meditacion',
+      name: 'Meditation',
+      short: 'Attention, breath and stillness.',
+      description: 'A practice dedicated to attention, breathing and silence. A space to pause, observe and rest the mind.',
+      level: 'All levels',
+      duration: '45 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/6648595/pexels-photo-6648595.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Sparkles,
+      accent: 'sage',
+    },
+    {
+      id: 'pilates-suelo',
+      name: 'Pilates Mat',
+      short: 'Bodyweight Pilates with props.',
+      description: 'Mat-based Pilates using bodyweight and supportive equipment to work on strength, control and alignment.',
+      level: 'All levels',
+      duration: '55 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/25596885/pexels-photo-25596885.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: CircleDot,
+      accent: 'sage',
+    },
+    {
+      id: 'pilates-reformer',
+      name: 'Pilates Reformer',
+      short: 'Reformer Pilates with spring resistance.',
+      description: 'Pilates on reformer machines, using spring resistance for precise, fluid and adaptable work.',
+      level: 'Beginner & intermediate',
+      duration: '55 min',
+      capacity: 5,
+      image: 'https://images.pexels.com/photos/33360222/pexels-photo-33360222.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: CircleDot,
+      accent: 'clay',
+    },
+    {
+      id: 'fuerza',
+      name: 'Strength training',
+      short: 'Complementary strength sessions.',
+      description: 'Strength-focused sessions that complement the studio movement practices, with a functional and progressive approach.',
+      level: 'Intermediate',
+      duration: '50 min',
+      capacity: 10,
+      image: 'https://images.pexels.com/photos/38755281/pexels-photo-38755281.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      icon: Dumbbell,
+      accent: 'clay',
+    },
+  ],
+};
+
+export const DISCIPLINES_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
+  es: {
+    eyebrow: 'Las clases',
+    title: 'Seis disciplinas bajo el mismo techo',
+    description: 'Desde el yoga tradicional al Pilates Reformer. Explora las prácticas que ofrecemos y encuentra la que mejor encaje contigo.',
+  },
+  en: {
+    eyebrow: 'The classes',
+    title: 'Six disciplines under one roof',
+    description: 'From traditional yoga to Pilates Reformer. Explore the practices we offer and find the one that fits you best.',
+  },
+};
+
+/* ---------- SCHEDULE ---------- */
+
+export type ScheduleSession = {
+  id: string;
+  day: number;
+  start: string;
+  duration: number;
+  disciplineId: string;
+  disciplineName: string;
+  instructor: string;
+  level: string;
+  capacity: number;
+  booked: number;
+};
+
+export const DAYS: Record<Lang, string[]> = {
+  es: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+  en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+};
+
+const SCHEDULE_INSTRUCTORS = ['Equipo docente', 'Profesora de yoga', 'Equipo de Pilates'];
+
+function S(d: number, start: string, dur: number, discId: string, discName: string, level: string, cap: number, booked: number, instr = 0): ScheduleSession {
+  return {
+    id: `${discId}-${d}-${start}`,
+    day: d,
+    start,
+    duration: dur,
+    disciplineId: discId,
+    disciplineName: discName,
+    instructor: SCHEDULE_INSTRUCTORS[instr],
+    level,
+    capacity: cap,
+    booked,
+  };
+}
+
+export const SCHEDULE: ScheduleSession[] = [
+  S(0, '09:00', 60, 'yoga', 'Yoga Suave', 'Todos los niveles', 10, 6),
+  S(0, '10:30', 55, 'pilates-suelo', 'Pilates Mat', 'Todos los niveles', 10, 4),
+  S(0, '18:00', 60, 'yoga-aereo', 'Yoga Aéreo', 'Iniciación', 6, 5),
+  S(0, '19:30', 55, 'pilates-reformer', 'Pilates Reformer', 'Intermedio', 5, 3, 1),
+  S(1, '09:00', 45, 'meditacion', 'Meditación', 'Todos los niveles', 10, 2),
+  S(1, '10:15', 60, 'yoga', 'Yoga Vinyasa', 'Intermedio', 10, 7),
+  S(1, '18:00', 50, 'fuerza', 'Fuerza funcional', 'Intermedio', 10, 5),
+  S(1, '19:15', 55, 'pilates-reformer', 'Pilates Reformer', 'Iniciación', 5, 4),
+  S(2, '09:30', 60, 'yoga', 'Yoga Suave', 'Todos los niveles', 10, 3),
+  S(2, '11:00', 55, 'pilates-suelo', 'Pilates Mat', 'Intermedio', 10, 6),
+  S(2, '18:30', 60, 'yoga-aereo', 'Yoga Aéreo', 'Intermedio', 6, 6, 2),
+  S(2, '20:00', 45, 'meditacion', 'Meditación', 'Todos los niveles', 10, 1),
+  S(3, '09:00', 60, 'yoga', 'Yoga Vinyasa', 'Intermedio', 10, 8),
+  S(3, '10:30', 55, 'pilates-reformer', 'Pilates Reformer', 'Intermedio', 5, 5, 1),
+  S(3, '18:00', 55, 'pilates-suelo', 'Pilates Mat', 'Todos los niveles', 10, 5),
+  S(3, '19:30', 50, 'fuerza', 'Fuerza funcional', 'Intermedio', 10, 4),
+  S(4, '09:30', 45, 'meditacion', 'Meditación', 'Todos los niveles', 10, 3),
+  S(4, '10:30', 60, 'yoga-aereo', 'Yoga Aéreo', 'Iniciación', 6, 2),
+  S(4, '18:00', 55, 'pilates-reformer', 'Pilates Reformer', 'Iniciación', 5, 3),
+  S(4, '19:30', 60, 'yoga', 'Yoga Restaurativo', 'Todos los niveles', 10, 6),
+  S(5, '10:00', 60, 'yoga', 'Yoga Suave', 'Todos los niveles', 10, 9),
+  S(5, '11:30', 55, 'pilates-suelo', 'Pilates Mat', 'Todos los niveles', 10, 7),
+  S(5, '12:30', 60, 'yoga-aereo', 'Yoga Aéreo', 'Iniciación', 6, 4),
+];
+
+export const SCHEDULE_HEADING: Record<Lang, {
+  eyebrow: string;
   title: string;
   description: string;
+  disclaimer: string;
+  gridLabel: string;
+  calendarLabel: string;
+  filterDiscipline: string;
+  filterDay: string;
+  filterLevel: string;
+  filterAvailability: string;
+  allOption: string;
+  availableOnly: string;
+  emptyTitle: string;
+  emptyText: string;
+  clearFilters: string;
+  placesLabel: string;
+  placesAvailable: string;
+  full: string;
+  viewClass: string;
+  bookClass: string;
+  minLabel: string;
+}> = {
+  es: {
+    eyebrow: 'Horarios',
+    title: 'La semana en el estudio',
+    description: 'Consulta algunas de las clases de la semana y encuentra la práctica que mejor encaja contigo.',
+    disclaimer: 'Consulta el centro para confirmar plazas y reservas.',
+    gridLabel: 'Cuadrícula',
+    calendarLabel: 'Calendario',
+    filterDiscipline: 'Disciplina',
+    filterDay: 'Día',
+    filterLevel: 'Nivel',
+    filterAvailability: 'Disponibilidad',
+    allOption: 'Todas',
+    availableOnly: 'Solo con plazas',
+    emptyTitle: 'No hay sesiones que coincidan',
+    emptyText: 'Prueba a cambiar los filtros para ver otras opciones.',
+    clearFilters: 'Limpiar filtros',
+    placesLabel: 'plazas',
+    placesAvailable: 'disponibles',
+    full: 'Completo',
+    viewClass: 'Ver clase',
+    bookClass: 'Reservar clase',
+    minLabel: 'min',
+  },
+  en: {
+    eyebrow: 'Schedule',
+    title: 'The week at the studio',
+    description: 'Explore some of the classes taking place during the week and find the practice that fits you best.',
+    disclaimer: 'Contact the studio to confirm places and bookings.',
+    gridLabel: 'Grid',
+    calendarLabel: 'Calendar',
+    filterDiscipline: 'Discipline',
+    filterDay: 'Day',
+    filterLevel: 'Level',
+    filterAvailability: 'Availability',
+    allOption: 'All',
+    availableOnly: 'With places only',
+    emptyTitle: 'No sessions match your filters',
+    emptyText: 'Try adjusting the filters to see other options.',
+    clearFilters: 'Clear filters',
+    placesLabel: 'places',
+    placesAvailable: 'available',
+    full: 'Full',
+    viewClass: 'View class',
+    bookClass: 'Book class',
+    minLabel: 'min',
+  },
+};
+
+/* ---------- CLASS DETAIL / BOOKING ---------- */
+
+export const BOOKING: Record<Lang, {
+  duration: string;
+  instructor: string;
+  level: string;
+  capacity: string;
+  availability: string;
+  expectTitle: string;
+  expectText: string;
+  bookBtn: string;
+  closeBtn: string;
+  previewTitle: string;
+  previewText: string;
+  previewNote: string;
+  backBtn: string;
+  contactBtn: string;
+}> = {
+  es: {
+    duration: 'Duración',
+    instructor: 'Instructor/a',
+    level: 'Nivel',
+    capacity: 'Capacidad',
+    availability: 'Disponibilidad',
+    expectTitle: 'Qué esperar',
+    expectText: 'Una sesión de grupo reducido con atención individualizada. Llega unos minutos antes para preparar tu material y empezar a la hora.',
+    bookBtn: 'Reservar clase',
+    closeBtn: 'Cerrar',
+    previewTitle: 'Reserva tu clase',
+    previewText: 'Has seleccionado esta clase. Contacta con el centro para confirmar tu plaza y completar la reserva.',
+    previewNote: 'Para reservar de verdad, contacta con el centro directamente o a través de su web oficial.',
+    backBtn: 'Volver',
+    contactBtn: 'Contactar con el centro',
+      },
+  en: {
+    duration: 'Duration',
+    instructor: 'Instructor',
+    level: 'Level',
+    capacity: 'Capacity',
+    availability: 'Availability',
+    expectTitle: 'What to expect',
+    expectText: 'A small-group session with individual attention. Arrive a few minutes early to set up and start on time.',
+    bookBtn: 'Book class',
+    closeBtn: 'Close',
+    previewTitle: 'Book your class',
+    previewText: 'You have selected this class. Contact the studio to confirm your place and complete your booking.',
+    previewNote: 'To book for real, contact the studio directly or through their official website.',
+    backBtn: 'Back',
+    contactBtn: 'Contact the studio',
+      },
+};
+
+/* ---------- STUDIO / TEACHING APPROACH ---------- */
+
+export type StudioPoint = { icon: LucideIcon; title: string; text: string };
+
+export const STUDIO_POINTS: Record<Lang, StudioPoint[]> = {
+  es: [
+    { icon: Users, title: 'Grupos reducidos', text: 'Clases con plazas limitadas para que cada persona reciba atención y corrección individual.' },
+    { icon: Sparkles, title: 'Varias prácticas', text: 'Yoga, Pilates suelo y Reformer, meditación y fuerza. Diferentes disciplinas en un mismo espacio.' },
+    { icon: HeartHandshake, title: 'Atención adaptada', text: 'Ajustamos las sesiones a distintas capacidades, limitaciones y momentos de cada persona.' },
+    { icon: Sprout, title: 'Un lugar para progresar', text: 'Un entorno acogedor y constante donde construir una práctica sostenida a lo largo del tiempo.' },
+  ],
+  en: [
+    { icon: Users, title: 'Small groups', text: 'Classes with limited places so each person receives individual attention and correction.' },
+    { icon: Sparkles, title: 'Multiple practices', text: 'Yoga, mat and Reformer Pilates, meditation and strength. Different disciplines in one space.' },
+    { icon: HeartHandshake, title: 'Adapted attention', text: 'We adjust sessions to different abilities, limitations and moments of each person.' },
+    { icon: Sprout, title: 'A place to progress', text: 'A welcoming and consistent environment to build a sustained practice over time.' },
+  ],
+};
+
+export const STUDIO_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
+  es: {
+    eyebrow: 'El centro',
+    title: 'Un espacio pensado para practicar a tu ritmo',
+    description: 'Yoga Center Córdoba es un estudio dedicado al yoga, el Pilates y el movimiento consciente. Trabajamos en grupos pequeños para cuidar cada práctica.',
+  },
+  en: {
+    eyebrow: 'The studio',
+    title: 'A space designed to practise at your pace',
+    description: 'Yoga Center Córdoba is a studio dedicated to yoga, Pilates and mindful movement. We work in small groups to care for every practice.',
+  },
+};
+
+/* ---------- INSTRUCTORS ---------- */
+
+export type Instructor = {
+  name: string;
+  role: string;
+  bio: string;
   image: string;
-  featured: boolean;
-  features: string[];
+  placeholder: boolean;
 };
 
-export const SERVICES: Record<Lang, ServiceItem[]> = {
+export const INSTRUCTORS: Record<Lang, Instructor[]> = {
   es: [
     {
-      title: 'Reforma de cocinas',
-      description: 'Diseño y renovación completa de cocinas: distribución, carpintería a medida, encimeras, iluminación y acabados pensados para el uso diario.',
-      image: 'https://images.pexels.com/photos/4800175/pexels-photo-4800175.jpeg?auto=compress&cs=tinysrgb&w=1200',
-      featured: true,
-      features: ['Diseño y distribución', 'Carpintería a medida', 'Encimeras de granito y mármol', 'Iluminación integrada'],
+      name: 'Equipo docente',
+      role: 'Yoga y Pilates',
+      bio: 'Un equipo cercano que acompaña cada práctica con atención, claridad y experiencia.',
+      image: 'https://images.pexels.com/photos/8436555/pexels-photo-8436555.jpeg?auto=compress&cs=tinysrgb&w=800',
+      placeholder: true,
     },
     {
-      title: 'Reforma de baños',
-      description: 'Renovación integral de baños con soluciones de fontanería, revestimientos impermeables, mamparas y materiales de fácil mantenimiento.',
-      image: 'https://images.pexels.com/photos/8146211/pexels-photo-8146211.jpeg?auto=compress&cs=tinysrgb&w=1200',
-      featured: true,
-      features: ['Fontanería completa', 'Revestimientos y mamparas', 'Ducha o bañera a medida', 'Ventilación e impermeabilización'],
+      name: 'Perfil de ejemplo',
+      role: 'Yoga aéreo',
+      bio: 'Una práctica adaptada para explorar el movimiento, la respiración y la confianza en el cuerpo.',
+      image: 'https://images.pexels.com/photos/6582867/pexels-photo-6582867.jpeg?auto=compress&cs=tinysrgb&w=800',
+      placeholder: true,
     },
     {
-      title: 'Carpintería y encimeras',
-      description: 'Muebles a medida, frentes de cocina y encimeras en distintos materiales, adaptados al espacio y al presupuesto.',
-      image: 'https://images.pexels.com/photos/8583696/pexels-photo-8583696.jpeg?auto=compress&cs=tinysrgb&w=940',
-      featured: false,
-      features: ['Muebles a medida', 'Frentes de cocina', 'Encimeras de cuarzo y madera'],
-    },
-    {
-      title: 'Suelos y revestimientos',
-      description: 'Colocación de cerámica, porcelánico y otros acabados para suelos y paredes, con preparación previa y rejuntado cuidado.',
-      image: 'https://images.pexels.com/photos/6175107/pexels-photo-6175107.jpeg?auto=compress&cs=tinysrgb&w=940',
-      featured: false,
-      features: ['Cerámica y porcelánico', 'Preparación de superficies', 'Rejuntado y acabados'],
+      name: 'Perfil de ejemplo',
+      role: 'Pilates Reformer',
+      bio: 'Una práctica adaptada para explorar el movimiento, la respiración y la confianza en el cuerpo.',
+      image: 'https://images.pexels.com/photos/8436399/pexels-photo-8436399.jpeg?auto=compress&cs=tinysrgb&w=800',
+      placeholder: true,
     },
   ],
   en: [
     {
-      title: 'Kitchen renovations',
-      description: 'Complete kitchen design and renovation: layout, custom cabinetry, countertops, lighting, and finishes built for daily use.',
-      image: 'https://images.pexels.com/photos/4800175/pexels-photo-4800175.jpeg?auto=compress&cs=tinysrgb&w=1200',
-      featured: true,
-      features: ['Design & layout', 'Custom cabinetry', 'Granite & marble countertops', 'Integrated lighting'],
+      name: 'Teaching team',
+      role: 'Yoga & Pilates',
+      bio: 'A welcoming team that guides each practice with care, clarity and experience.',
+      image: 'https://images.pexels.com/photos/8436555/pexels-photo-8436555.jpeg?auto=compress&cs=tinysrgb&w=800',
+      placeholder: true,
     },
     {
-      title: 'Bathroom renovations',
-      description: 'Complete bathroom renovation with plumbing solutions, waterproof finishes, glass enclosures, and low-maintenance materials.',
-      image: 'https://images.pexels.com/photos/8146211/pexels-photo-8146211.jpeg?auto=compress&cs=tinysrgb&w=1200',
-      featured: true,
-      features: ['Full plumbing', 'Tiling & enclosures', 'Custom shower or tub', 'Ventilation & waterproofing'],
+      name: 'Sample profile',
+      role: 'Aerial yoga',
+      bio: 'Instructor profile. Information for the corresponding instructor will appear here.',
+      image: 'https://images.pexels.com/photos/6582867/pexels-photo-6582867.jpeg?auto=compress&cs=tinysrgb&w=800',
+      placeholder: true,
     },
     {
-      title: 'Cabinetry & countertops',
-      description: 'Custom furniture, kitchen fronts, and countertops in various materials, adapted to your space and budget.',
-      image: 'https://images.pexels.com/photos/8583696/pexels-photo-8583696.jpeg?auto=compress&cs=tinysrgb&w=940',
-      featured: false,
-      features: ['Bespoke furniture', 'Kitchen fronts', 'Quartz & wood countertops'],
-    },
-    {
-      title: 'Flooring & tiling',
-      description: 'Ceramic, porcelain, and other floor and wall finishes, with proper surface preparation and careful grouting.',
-      image: 'https://images.pexels.com/photos/6175107/pexels-photo-6175107.jpeg?auto=compress&cs=tinysrgb&w=940',
-      featured: false,
-      features: ['Ceramic & porcelain', 'Surface preparation', 'Grouting & finishing'],
+      name: 'Sample profile',
+      role: 'Pilates Reformer',
+      bio: 'Instructor profile. Information for the corresponding instructor will appear here.',
+      image: 'https://images.pexels.com/photos/8436399/pexels-photo-8436399.jpeg?auto=compress&cs=tinysrgb&w=800',
+      placeholder: true,
     },
   ],
 };
 
-export const SERVICES_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
+export const INSTRUCTORS_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
   es: {
-    eyebrow: 'Qué hacemos',
-    title: 'Servicios de reforma, de principio a fin',
-    description: 'Nos ocupamos de cada fase para que no tengas que coordinar varios proveedores ni preocuparte por los detalles.',
+    eyebrow: 'Equipo',
+    title: 'Quién guía las clases',
+    description: 'Conoce a las personas que acompañan cada práctica con atención y cercanía.',
   },
   en: {
-    eyebrow: 'What we do',
-    title: 'Renovation services from start to finish',
-    description: 'We handle every phase so you don\'t have to coordinate multiple contractors or worry about the details.',
+    eyebrow: 'Team',
+    title: 'Who guides the classes',
+    description: 'Meet the people who guide each practice with care and attention.',
   },
 };
 
-/* ---------- GUIDANCE ---------- */
+/* ---------- GALLERY ---------- */
 
-export type GuidanceStep = { icon: LucideIcon; title: string; text: string };
+export type GalleryItem = { alt: string; image: string; span?: boolean };
 
-export const GUIDANCE_STEPS: Record<Lang, GuidanceStep[]> = {
+export const GALLERY: Record<Lang, GalleryItem[]> = {
   es: [
-    {
-      icon: MessageSquare,
-      title: 'Habla de tus ideas',
-      text: 'Cuéntanos qué quieres cambiar, tus necesidades y lo que te preocupa. No hace falta tener todo decidido.',
-    },
-    {
-      icon: Compass,
-      title: 'Orientación práctica',
-      text: 'Te guiamos sobre distribuciones, materiales y opciones realistas que se ajustan a tu vivienda y tu presupuesto.',
-    },
-    {
-      icon: ClipboardCheck,
-      title: 'Entiende los pasos',
-      text: 'Sabrás qué trabajos se proponen y qué ocurre después antes de comprometerte a nada.',
-    },
+    { alt: 'Sesión de yoga en el estudio', image: 'https://images.pexels.com/photos/3822356/pexels-photo-3822356.jpeg?auto=compress&cs=tinysrgb&w=900', span: true },
+    { alt: 'Yoga aéreo con hamacas suspendidas', image: 'https://images.pexels.com/photos/4999408/pexels-photo-4999408.jpeg?auto=compress&cs=tinysrgb&w=900' },
+    { alt: 'Sala de Pilates Reformer', image: 'https://images.pexels.com/photos/18499500/pexels-photo-18499500.png?auto=compress&cs=tinysrgb&w=900' },
+    { alt: 'Clase de Pilates suelo', image: 'https://images.pexels.com/photos/6339447/pexels-photo-6339447.jpeg?auto=compress&cs=tinysrgb&w=900' },
+    { alt: 'Interior del estudio', image: 'https://images.pexels.com/photos/8146214/pexels-photo-8146214.jpeg?auto=compress&cs=tinysrgb&w=900', span: true },
   ],
   en: [
-    {
-      icon: MessageSquare,
-      title: 'Share your ideas',
-      text: 'Tell us what you want to change, your needs, and what worries you. You don\'t need to have everything decided.',
+    { alt: 'Yoga session at the studio', image: 'https://images.pexels.com/photos/3822356/pexels-photo-3822356.jpeg?auto=compress&cs=tinysrgb&w=900', span: true },
+    { alt: 'Aerial yoga with suspended hammocks', image: 'https://images.pexels.com/photos/4999408/pexels-photo-4999408.jpeg?auto=compress&cs=tinysrgb&w=900' },
+    { alt: 'Pilates Reformer room', image: 'https://images.pexels.com/photos/18499500/pexels-photo-18499500.png?auto=compress&cs=tinysrgb&w=900' },
+    { alt: 'Pilates Mat class', image: 'https://images.pexels.com/photos/6339447/pexels-photo-6339447.jpeg?auto=compress&cs=tinysrgb&w=900' },
+    { alt: 'Studio interior', image: 'https://images.pexels.com/photos/8146214/pexels-photo-8146214.jpeg?auto=compress&cs=tinysrgb&w=900', span: true },
+  ],
+};
+
+export const GALLERY_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
+  es: {
+    eyebrow: 'Galería',
+    title: 'El espacio y la práctica',
+    description: 'Una mirada a las salas y las disciplinas del estudio. Las imágenes son de muestra y no corresponden necesariamente a las instalaciones reales.',
+  },
+  en: {
+    eyebrow: 'Gallery',
+    title: 'The space and the practice',
+    description: 'A look at the rooms and disciplines of the studio. Images are samples and do not necessarily show the actual facilities.',
+  },
+};
+
+/* ---------- GETTING STARTED ---------- */
+
+export type Step = { n: number; title: string; text: string };
+
+export const GETTING_STARTED: Record<Lang, { heading: { eyebrow: string; title: string; description: string }; steps: Step[]; cta: string }> = {
+  es: {
+    heading: {
+      eyebrow: 'Primeros pasos',
+      title: 'Cómo empezar',
+      description: 'Cuatro pasos sencillos para dar el primero. No necesitas experiencia previa ni tener todo decidido.',
     },
-    {
-      icon: Compass,
-      title: 'Practical guidance',
-      text: 'We advise on layouts, materials, and realistic options that fit your home and your budget.',
+    steps: [
+      { n: 1, title: 'Explora las clases', text: 'Revisa las disciplinas que ofrecemos y descubre cuál despierta tu interés.' },
+      { n: 2, title: 'Consulta los horarios', text: 'Mira la semana y filtra por día, disciplina o nivel para encontrar tu hueco.' },
+      { n: 3, title: 'Elige tu sesión', text: 'Selecciona la clase que mejor encaje contigo y comprueba las plazas disponibles.' },
+      { n: 4, title: 'Reserva o contacta', text: 'Sigue las indicaciones para reservar tu plaza o escribir al centro.' },
+    ],
+    cta: 'Encuentra tu clase',
+  },
+  en: {
+    heading: {
+      eyebrow: 'Getting started',
+      title: 'How to begin',
+      description: 'Four simple steps to take the first one. No previous experience needed and you don\'t need everything figured out.',
     },
-    {
-      icon: ClipboardCheck,
-      title: 'Understand the steps',
-      text: 'You\'ll know what work is proposed and what happens next before committing to anything.',
-    },
-  ],
-};
-
-export const GUIDANCE_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
-  es: {
-    eyebrow: '¿No sabes por dónde empezar?',
-    title: 'No necesitas tener todo decidido para hablar con nosotros',
-    description: 'Una reforma empieza por entender qué necesitas y resolver las dudas importantes antes de la obra.',
-  },
-  en: {
-    eyebrow: 'Don\'t know where to start?',
-    title: 'You don\'t need everything figured out to talk to us',
-    description: 'A renovation starts with understanding what you need and resolving the important questions before construction begins.',
+    steps: [
+      { n: 1, title: 'Explore the classes', text: 'Review the disciplines we offer and discover what sparks your interest.' },
+      { n: 2, title: 'Check the schedule', text: 'Look at the week and filter by day, discipline or level to find your slot.' },
+      { n: 3, title: 'Choose your session', text: 'Select the class that fits you best and check available places.' },
+      { n: 4, title: 'Book or get in touch', text: 'Follow the steps to book your place or write to the studio.' },
+    ],
+    cta: 'Find your class',
   },
 };
 
-/* ---------- PORTFOLIO ---------- */
-
-export type PortfolioItem = { title: string; category: string; image: string; tall?: boolean };
-
-export const PORTFOLIO_ITEMS: Record<Lang, PortfolioItem[]> = {
-  es: [
-    { title: 'Cocina con isla de mármol', category: 'Cocinas', image: 'https://images.pexels.com/photos/4800175/pexels-photo-4800175.jpeg?auto=compress&cs=tinysrgb&w=900', tall: true },
-    { title: 'Baño de mármol con ducha', category: 'Baños', image: 'https://images.pexels.com/photos/8146211/pexels-photo-8146211.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Cocina blanca y madera', category: 'Cocinas', image: 'https://images.pexels.com/photos/8583696/pexels-photo-8583696.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Baño contemporáneo con mampara', category: 'Baños', image: 'https://images.pexels.com/photos/8082223/pexels-photo-8082223.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Cocina con encimera de cuarzo', category: 'Cocinas', image: 'https://images.pexels.com/photos/38071645/pexels-photo-38071645.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Baño minimalista con bañera', category: 'Baños', image: 'https://images.pexels.com/photos/7195883/pexels-photo-7195883.jpeg?auto=compress&cs=tinysrgb&w=900', tall: true },
-    { title: 'Cocina abierta con penachos', category: 'Cocinas', image: 'https://images.pexels.com/photos/5502219/pexels-photo-5502219.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Baño de invitados elegante', category: 'Baños', image: 'https://images.pexels.com/photos/35868666/pexels-photo-35868666.jpeg?auto=compress&cs=tinysrgb&w=900' },
-  ],
-  en: [
-    { title: 'Kitchen with marble island', category: 'Kitchens', image: 'https://images.pexels.com/photos/4800175/pexels-photo-4800175.jpeg?auto=compress&cs=tinysrgb&w=900', tall: true },
-    { title: 'Marble bathroom with shower', category: 'Bathrooms', image: 'https://images.pexels.com/photos/8146211/pexels-photo-8146211.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'White and wood kitchen', category: 'Kitchens', image: 'https://images.pexels.com/photos/8583696/pexels-photo-8583696.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Contemporary bathroom with enclosure', category: 'Bathrooms', image: 'https://images.pexels.com/photos/8082223/pexels-photo-8082223.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Kitchen with quartz countertop', category: 'Kitchens', image: 'https://images.pexels.com/photos/38071645/pexels-photo-38071645.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Minimalist bathroom with tub', category: 'Bathrooms', image: 'https://images.pexels.com/photos/7195883/pexels-photo-7195883.jpeg?auto=compress&cs=tinysrgb&w=900', tall: true },
-    { title: 'Open kitchen with pendant lights', category: 'Kitchens', image: 'https://images.pexels.com/photos/5502219/pexels-photo-5502219.jpeg?auto=compress&cs=tinysrgb&w=900' },
-    { title: 'Elegant guest bathroom', category: 'Bathrooms', image: 'https://images.pexels.com/photos/35868666/pexels-photo-35868666.jpeg?auto=compress&cs=tinysrgb&w=900' },
-  ],
-};
-
-export const PORTFOLIO_CATEGORIES: Record<Lang, readonly string[]> = {
-  es: ['Todos', 'Cocinas', 'Baños'] as const,
-  en: ['All', 'Kitchens', 'Bathrooms'] as const,
-};
-
-export const PORTFOLIO_HEADING: Record<Lang, { eyebrow: string; title: string; description: string; disclaimer: string }> = {
-  es: {
-    eyebrow: 'Proyectos',
-    title: 'Ejemplos de reformas realizadas',
-    description: 'Una selección para ayudarte a imaginar lo que es posible en tu vivienda.',
-    disclaimer: 'Imágenes de muestra para la demostración. No corresponden a proyectos reales de la empresa.',
-  },
-  en: {
-    eyebrow: 'Projects',
-    title: 'Examples of completed renovations',
-    description: 'A selection to help you imagine what\'s possible in your home.',
-    disclaimer: 'Sample images for demonstration. They do not represent actual company projects.',
-  },
-};
-
-/* ---------- TRUST ---------- */
-
-export type TrustPoint = { icon: LucideIcon; title: string; text: string };
-
-export const TRUST_POINTS: Record<Lang, TrustPoint[]> = {
-  es: [
-    { icon: Hammer, title: 'Trabajo bien hecho', text: 'Cuidamos los detalles que se ven y los que no. Cada fase se ejecuta con esmero y materiales adecuados.' },
-    { icon: ShieldCheck, title: 'Comunicación clara', text: 'Explicamos lo que vamos a hacer y por qué. Recomendaciones honestas, sin sorpresas ni cambios a última hora.' },
-    { icon: Compass, title: 'Acompañamiento', text: 'Te orientamos durante todo el proceso, desde la primera conversación hasta la entrega de la reforma.' },
-    { icon: Ruler, title: 'Enfoque profesional', text: 'Planificamos cada fase con método. Trabajos secuenciales, tiempos realistas y limpieza de la obra.' },
-  ],
-  en: [
-    { icon: Hammer, title: 'Well-crafted work', text: 'We care for the details you see and the ones you don\'t. Every phase is executed with care and proper materials.' },
-    { icon: ShieldCheck, title: 'Clear communication', text: 'We explain what we\'ll do and why. Honest recommendations, no surprises or last-minute changes.' },
-    { icon: Compass, title: 'Guidance throughout', text: 'We support you through the entire process, from the first conversation to the final handover.' },
-    { icon: Ruler, title: 'Professional approach', text: 'We plan every phase methodically. Sequential work, realistic timelines, and a clean work site.' },
-  ],
-};
-
-export const TRUST_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
-  es: {
-    eyebrow: 'Por qué confiar en nosotros',
-    title: 'Una reforma bien planificada empieza con confianza',
-    description: 'Elegir a quien va a reformar tu casa no es una decisión menor. Por eso nos tomamos el tiempo de explicarte todo lo que necesitas saber.',
-  },
-  en: {
-    eyebrow: 'Why trust us',
-    title: 'A well-planned renovation starts with trust',
-    description: 'Choosing who will renovate your home is no small decision. That\'s why we take the time to explain everything you need to know.',
-  },
-};
-
-export const TRUST_PROFILE: Record<Lang, { name: string; role: string; bio: string; note: string }> = {
-  es: {
-    name: 'Marcos Fernández',
-    role: 'Carpintería y reformas integrales',
-    bio: 'Más de 15 años transformando cocinas y baños en la zona de Madrid. Empecé como carpintero y poco a poco fui ampliando el equipo para ofrecer reformas completas. Me gusta visitar la vivienda, entender cómo vive cada familia y proponer soluciones que realmente mejoren el día a día. Antes de empezar cualquier obra, nos sentamos a revisar juntos el presupuesto y el calendario.',
-    note: 'Verifica que cualquier titulación o experiencia mencionada se pueda acreditar antes de publicar la página.',
-  },
-  en: {
-    name: 'Marcos Fernández',
-    role: 'Carpentry & full renovations',
-    bio: 'Over 15 years transforming kitchens and bathrooms in the Madrid area. I started as a carpenter and gradually built a team to offer complete renovations. I like visiting the home, understanding how each family lives, and proposing solutions that genuinely improve daily life. Before starting any work, we sit down together to review the budget and timeline.',
-    note: 'Verify that any qualifications or experience mentioned can be accredited before publishing.',
-  },
-};
-
-/* ---------- PROCESS ---------- */
-
-export type ProcessStep = { icon: LucideIcon; n: number; title: string; text: string };
-
-export const PROCESS_STEPS: Record<Lang, ProcessStep[]> = {
-  es: [
-    { icon: MessageSquare, n: 1, title: 'Cuéntanos tu proyecto', text: 'Comparte qué quieres cambiar y qué es lo más importante para ti.' },
-    { icon: Compass, n: 2, title: 'Definimos el enfoque', text: 'Aclaramos tus necesidades, dudas y los trabajos que se están valorando.' },
-    { icon: PencilRuler, n: 3, title: 'Revisas la propuesta', text: 'Entiendes el alcance y el presupuesto antes de decidir cómo seguir.' },
-    { icon: CalendarCheck, n: 4, title: 'Planificamos la reforma', text: 'Acordamos los próximos pasos con la empresa antes de iniciar la obra.' },
-  ],
-  en: [
-    { icon: MessageSquare, n: 1, title: 'Tell us about your project', text: 'Share what you want to change and what matters most to you.' },
-    { icon: Compass, n: 2, title: 'Define the approach', text: 'We clarify your needs, questions, and the work being considered.' },
-    { icon: PencilRuler, n: 3, title: 'Review the proposal', text: 'You understand the scope and estimate before deciding how to proceed.' },
-    { icon: CalendarCheck, n: 4, title: 'Plan the renovation', text: 'We agree on the next steps before construction begins.' },
-  ],
-};
-
-export const PROCESS_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
-  es: {
-    eyebrow: 'El proceso',
-    title: 'Qué pasa después de escribirnos',
-    description: 'Cuatro pasos sencillos. No te pediremos que decidas nada sin tener toda la información primero.',
-  },
-  en: {
-    eyebrow: 'The process',
-    title: 'What happens after you reach out',
-    description: 'Four simple steps. We won\'t ask you to decide anything without having all the information first.',
-  },
-};
-
-/* ---------- REVIEWS ---------- */
-
-export const REVIEWS_HEADING: Record<Lang, { eyebrow: string; title: string; description: string; disclaimer: string }> = {
-  es: {
-    eyebrow: 'Opiniones',
-    title: 'Lo que dicen quienes han reformado con nosotros',
-    description: 'Reservamos este espacio para reseñas reales de clientes.',
-    disclaimer: 'Las reseñas reales de clientes se mostrarán aquí una vez disponibles. No se han inventado testimonios.',
-  },
-  en: {
-    eyebrow: 'Reviews',
-    title: 'What our clients say after renovating with us',
-    description: 'This space is reserved for genuine client reviews.',
-    disclaimer: 'Genuine client reviews will be displayed here once available. No testimonials have been fabricated.',
-  },
-};
-
-export const REVIEWS: Record<Lang, { name: string; project: string }[]> = {
-  es: [
-    { name: 'Cliente verificado', project: 'Cocina' },
-    { name: 'Cliente verificado', project: 'Baño' },
-    { name: 'Cliente verificado', project: 'Ambos' },
-  ],
-  en: [
-    { name: 'Verified client', project: 'Kitchen' },
-    { name: 'Verified client', project: 'Bathroom' },
-    { name: 'Verified client', project: 'Both' },
-  ],
-};
-
-/* ---------- CONTACT ---------- */
+/* ---------- CONTACT / LOCATION ---------- */
 
 export const CONTACT: Record<Lang, {
   eyebrow: string;
   title: string;
   description: string;
-  phoneLabel: string;
-  emailLabel: string;
-  areaLabel: string;
+  addressLabel: string;
+  addressValue: string;
+  cityValue: string;
+  websiteLabel: string;
+  websiteValue: string;
+  websiteHref: string;
   hoursLabel: string;
-  phoneValue: string;
-  emailValue: string;
-  areaValue: string;
   hoursValue: string;
+  note: string;
+  cta: string;
 }> = {
   es: {
-    eyebrow: 'Solicita un presupuesto',
-    title: 'Cuéntanos qué reforma tienes en mente',
-    description: 'Comparte algunos detalles de tu proyecto y nos pondremos en contacto contigo. No necesitas tener todo definido: unas pocas líneas son suficientes para empezar a orientarte.',
-    phoneLabel: 'Teléfono',
-    emailLabel: 'Email',
-    areaLabel: 'Zona de trabajo',
-    hoursLabel: 'Horario',
-    phoneValue: '+34 600 123 456',
-    emailValue: 'hola@reformacasa.es',
-    areaValue: 'Madrid y alrededores',
-    hoursValue: 'Lun–Vie · 9:00–18:00',
+    eyebrow: 'Contacto y ubicación',
+    title: 'Ven a conocer el estudio',
+    description: 'Estamos en el centro de Córdoba. Para horarios, reservas y dudas, puedes escribirnos o consultar la web oficial del centro.',
+    addressLabel: 'Dirección',
+    addressValue: 'C/ Veterinaria María Cerrato, 2',
+    cityValue: '14005 Córdoba, España',
+    websiteLabel: 'Sitio web oficial',
+    websiteValue: 'yogacentercordoba.com',
+    websiteHref: 'https://yogacentercordoba.com/',
+    hoursLabel: 'Información',
+    hoursValue: 'Consulta horarios y disponibilidad en la sección de arriba o en la web del centro.',
+    note: 'Los datos de contacto se han tomado de la web pública del centro. Verifícalos antes de su uso definitivo.',
+    cta: 'Ir a la web del centro',
   },
   en: {
-    eyebrow: 'Request a quote',
-    title: 'Tell us about the renovation you have in mind',
-    description: 'Share some details about your project and we\'ll get back to you. You don\'t need everything figured out: a few lines are enough to start guiding you.',
-    phoneLabel: 'Phone',
-    emailLabel: 'Email',
-    areaLabel: 'Service area',
-    hoursLabel: 'Hours',
-    phoneValue: '+34 600 123 456',
-    emailValue: 'hola@reformacasa.es',
-    areaValue: 'Madrid and surrounding areas',
-    hoursValue: 'Mon–Fri · 9:00–18:00',
-  },
-};
-
-/* ---------- FORM ---------- */
-
-export const FORM: Record<Lang, {
-  nameLabel: string;
-  phoneLabel: string;
-  emailLabel: string;
-  projectTypeLabel: string;
-  locationLabel: string;
-  locationHint: string;
-  timingLabel: string;
-  timingHint: string;
-  budgetLabel: string;
-  budgetHint: string;
-  descriptionLabel: string;
-  descriptionHint: string;
-  descriptionPlaceholder: string;
-  consentText: string;
-  submitBtn: string;
-  submitting: string;
-  successTitle: string;
-  successText: string;
-  errorNotice: string;
-  nameError: string;
-  contactError: string;
-  emailError: string;
-  projectTypeError: string;
-  consentError: string;
-  nameRequired: string;
-  projectTypeRequired: string;
-  contactHint: string;
-  selectOption: string;
-  budgetOptions: string[];
-  timingOptions: string[];
-  projectTypes: string[];
-}> = {
-  es: {
-    nameLabel: 'Nombre',
-    phoneLabel: 'Teléfono',
-    emailLabel: 'Email',
-    projectTypeLabel: 'Tipo de proyecto',
-    locationLabel: 'Ubicación o código postal',
-    locationHint: 'Opcional',
-    timingLabel: 'Plazo aproximado',
-    timingHint: 'Opcional',
-    budgetLabel: 'Presupuesto aproximado',
-    budgetHint: 'Opcional y orientativo',
-    descriptionLabel: 'Cuéntanos tu proyecto',
-    descriptionHint: 'Opcional — unas líneas son suficientes',
-    descriptionPlaceholder: 'Qué quieres cambiar, qué es lo más importante para ti, cualquier duda que tengas…',
-    consentText: 'Acepto que mis datos se utilicen para responder a esta solicitud. Puedes consultar nuestra política de privacidad para más información.',
-    submitBtn: 'Solicitar presupuesto',
-    submitting: 'Enviando…',
-    successTitle: '¡Gracias!',
-    successText: 'Hemos recibido tu solicitud. Nos pondremos en contacto contigo lo antes posible.',
-    errorNotice: 'Esta es una demostración: el formulario no está conectado a un servidor todavía. Introduce los datos y pulsa para ver la validación, pero el envío no se procesará hasta que se configure el backend.',
-    nameError: 'Introduce tu nombre.',
-    contactError: 'Necesitamos un teléfono o un email para contactarte.',
-    emailError: 'El email no parece válido.',
-    projectTypeError: 'Selecciona un tipo de proyecto.',
-    consentError: 'Necesitamos que aceptes la política de privacidad.',
-    nameRequired: 'Requerido',
-    projectTypeRequired: 'Requerido',
-    contactHint: 'Indica teléfono o email',
-    selectOption: 'Selecciona una opción…',
-    budgetOptions: ['Hasta 5.000 €', '5.000 – 15.000 €', '15.000 – 30.000 €', 'Más de 30.000 €', 'Todavía no lo sé'],
-    timingOptions: ['Lo antes posible', 'En unos meses', 'Solo estoy valorando opciones'],
-    projectTypes: ['Cocina', 'Baño', 'Ambos', 'Otro'],
-  },
-  en: {
-    nameLabel: 'Name',
-    phoneLabel: 'Phone',
-    emailLabel: 'Email',
-    projectTypeLabel: 'Project type',
-    locationLabel: 'Location or postcode',
-    locationHint: 'Optional',
-    timingLabel: 'Approximate timeline',
-    timingHint: 'Optional',
-    budgetLabel: 'Approximate budget',
-    budgetHint: 'Optional & indicative',
-    descriptionLabel: 'Tell us about your project',
-    descriptionHint: 'Optional — a few lines are enough',
-    descriptionPlaceholder: 'What you want to change, what matters most to you, any questions you have…',
-    consentText: 'I agree that my data may be used to respond to this request. See our privacy policy for more information.',
-    submitBtn: 'Request quote',
-    submitting: 'Sending…',
-    successTitle: 'Thank you!',
-    successText: 'We\'ve received your request. We\'ll get back to you as soon as possible.',
-    errorNotice: 'This is a demo: the form is not connected to a server yet. Enter data and submit to see validation, but the submission won\'t be processed until the backend is configured.',
-    nameError: 'Please enter your name.',
-    contactError: 'We need a phone number or email to contact you.',
-    emailError: 'The email doesn\'t seem valid.',
-    projectTypeError: 'Please select a project type.',
-    consentError: 'We need you to accept the privacy policy.',
-    nameRequired: 'Required',
-    projectTypeRequired: 'Required',
-    contactHint: 'Provide phone or email',
-    selectOption: 'Select an option…',
-    budgetOptions: ['Up to €5,000', '€5,000 – €15,000', '€15,000 – €30,000', 'Over €30,000', 'Not sure yet'],
-    timingOptions: ['As soon as possible', 'In a few months', 'Just exploring options'],
-    projectTypes: ['Kitchen', 'Bathroom', 'Both', 'Other'],
-  },
-};
-
-/* ---------- FAQ ---------- */
-
-export const FAQS: Record<Lang, { q: string; a: string }[]> = {
-  es: [
-    {
-      q: '¿Necesito saber exactamente lo que quiero antes de contactaros?',
-      a: 'No. Muchas personas nos escriben con una idea general y preguntas abiertas. El primer contacto sirve para entender tu situación y orientarte, no para cerrar decisiones.',
-    },
-    {
-      q: '¿Puedo pedir un presupuesto antes de decidir seguir adelante?',
-      a: 'Sí. La solicitud de presupuesto no implica compromiso. Te enviamos una propuesta detallada y tú decides si quieres seguir adelante, sin presión ni obligación.',
-    },
-    {
-      q: '¿Qué información debería preparar para la primera conversación?',
-      a: 'Conviene tener una idea del espacio a reformar, tu objetivo principal y, si lo tienes, un rango de presupuesto orientativo. Fotografías del estado actual ayudan, pero no son imprescindibles.',
-    },
-    {
-      q: '¿En qué zonas trabajáis?',
-      a: 'Trabajamos principalmente en Madrid y alrededores: Pozuelo, Majadahonda, Las Rozas, Alcobendas, San Sebastián de los Reyes y Tres Cantos. Si estás en otra zona cercana, escríbenos y valoramos si podemos atenderte.',
-    },
-    {
-      q: '¿Cómo empieza el proceso de reforma?',
-      a: 'Empieza con una conversación sobre lo que necesitas. A partir de ahí valoramos el enfoque, te enviamos una propuesta y, si todo encaja, planificamos el inicio de la obra.',
-    },
-  ],
-  en: [
-    {
-      q: 'Do I need to know exactly what I want before contacting you?',
-      a: 'No. Many people reach out with a general idea and open questions. The first contact is about understanding your situation and guiding you, not closing decisions.',
-    },
-    {
-      q: 'Can I request a quote before deciding to proceed?',
-      a: 'Yes. Requesting a quote implies no commitment. We send you a detailed proposal and you decide whether to proceed, with no pressure or obligation.',
-    },
-    {
-      q: 'What information should I prepare for the first conversation?',
-      a: 'It helps to have an idea of the space to renovate, your main goal, and — if you have one — an approximate budget range. Photos of the current state are helpful but not essential.',
-    },
-    {
-      q: 'What areas do you work in?',
-      a: 'We work mainly in Madrid and surrounding areas: Pozuelo, Majadahonda, Las Rozas, Alcobendas, San Sebastián de los Reyes, and Tres Cantos. If you are in a nearby area, write to us and we will assess whether we can help.',
-    },
-    {
-      q: 'How does the renovation process start?',
-      a: 'It starts with a conversation about what you need. From there we assess the approach, send you a proposal, and if everything fits, we plan the start of construction.',
-    },
-  ],
-};
-
-export const FAQ_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
-  es: {
-    eyebrow: 'Preguntas frecuentes',
-    title: 'Dudas habituales antes de empezar',
-    description: 'Si no encuentras tu pregunta aquí, escríbenos y la resolvemos sin compromiso.',
-  },
-  en: {
-    eyebrow: 'Frequently asked questions',
-    title: 'Common questions before starting',
-    description: 'If you don\'t find your question here, write to us and we\'ll answer it with no obligation.',
-  },
-};
-
-/* ---------- FINAL CTA ---------- */
-
-export const FINAL_CTA: Record<Lang, { title: string; description: string; button: string }> = {
-  es: {
-    title: '¿Hablamos de tu reforma?',
-    description: 'Puedes empezar simplemente contándonos tus ideas y tus necesidades. No necesitas tener cada detalle decidido para dar el primer paso.',
-    button: 'Solicita un presupuesto',
-  },
-  en: {
-    title: 'Shall we talk about your renovation?',
-    description: 'You can start by simply sharing your ideas and needs. You don\'t need every detail decided to take the first step.',
-    button: 'Request a quote',
+    eyebrow: 'Contact & location',
+    title: 'Come and visit the studio',
+    description: 'We are in central Córdoba. For schedules, bookings and questions, you can write to us or check the studio\'s official website.',
+    addressLabel: 'Address',
+    addressValue: 'C/ Veterinaria María Cerrato, 2',
+    cityValue: '14005 Córdoba, Spain',
+    websiteLabel: 'Official website',
+    websiteValue: 'yogacentercordoba.com',
+    websiteHref: 'https://yogacentercordoba.com/',
+    hoursLabel: 'Information',
+    hoursValue: 'Check schedules and availability in the section above or on the studio website.',
+    note: 'Contact details are taken from the studio\'s public website. Verify before final use.',
+    cta: 'Go to the studio website',
   },
 };
 
@@ -596,7 +661,6 @@ export const FINAL_CTA: Record<Lang, { title: string; description: string; butto
 export const FOOTER: Record<Lang, {
   brand: string;
   tagline: string;
-  servicesTitle: string;
   navTitle: string;
   contactTitle: string;
   legalTitle: string;
@@ -604,33 +668,120 @@ export const FOOTER: Record<Lang, {
   terms: string;
   cookies: string;
   copyright: string;
-  services: string[];
+  website: string;
+  websiteHref: string;
+  currentNote: string;
 }> = {
   es: {
-    brand: 'Reforma Casa',
-    tagline: 'Reformas de cocinas y baños con acompañamiento profesional.',
-    servicesTitle: 'Servicios',
+    brand: 'Yoga Center Córdoba',
+    tagline: 'Yoga, Pilates y movimiento consciente en Córdoba.',
     navTitle: 'Navegación',
     contactTitle: 'Contacto',
     legalTitle: 'Legal',
     privacy: 'Política de privacidad',
     terms: 'Aviso legal',
     cookies: 'Cookies',
-    copyright: '© {year} Reforma Casa. Reformas de cocinas y baños en Madrid y alrededores.',
-    services: ['Reforma de cocinas', 'Reforma de baños', 'Carpintería y encimeras', 'Suelos y revestimientos'],
+    copyright: '© {year} Yoga Center Córdoba.',
+    website: 'Web oficial',
+    websiteHref: 'https://yogacentercordoba.com/',
+    currentNote: ''
   },
   en: {
-    brand: 'Reforma Casa',
-    tagline: 'Kitchen and bathroom renovations with professional guidance.',
-    servicesTitle: 'Services',
+    brand: 'Yoga Center Córdoba',
+    tagline: 'Yoga, Pilates and mindful movement in Córdoba.',
     navTitle: 'Navigation',
     contactTitle: 'Contact',
     legalTitle: 'Legal',
     privacy: 'Privacy policy',
     terms: 'Legal notice',
     cookies: 'Cookies',
-    copyright: '© {year} Reforma Casa. Kitchen and bathroom renovations in Madrid and surrounding areas.',
-    services: ['Kitchen renovations', 'Bathroom renovations', 'Cabinetry & countertops', 'Flooring & tiling'],
+    copyright: '© {year} Yoga Center Córdoba.',
+    website: 'Official website',
+    websiteHref: 'https://yogacentercordoba.com/',
+    currentNote: ''
+  },
+};
+
+/* ---------- THEME / LANG TOGGLES ---------- */
+
+/* ---------- FAQ ---------- */
+
+export const FAQS: Record<Lang, { q: string; a: string }[]> = {
+  es: [
+    { q: '¿Necesito experiencia previa para empezar?', a: 'No. La mayoría de nuestras clases son para todos los niveles, incluidas personas que nunca han practicado. Las instructoras adaptan las posturas y opciones para que cada persona empiece a su ritmo.' },
+    { q: '¿Qué debo llevar a la clase?', a: 'Ropa cómoda que permita moverte con libertad. Nosotros proporcionamos colchonetas y material para Pilates suelo. Para Reformer y yoga aéreo no necesitas nada extra.' },
+    { q: '¿Cómo reservo una plaza?', a: 'Puedes consultar el horario semanal en esta página y ver la disponibilidad de cada sesión. Para reservar, contacta con el centro a través de la web oficial o por teléfono.' },
+    { q: '¿Los grupos son reducidos?', a: 'Sí. Limitamos las plazas a un máximo de 10 personas por clase, y 5-6 en sesiones de Reformer y yoga aéreo. Así aseguramos atención individual y corrección.' },
+    { q: '¿Puedo probar antes de apuntarme?', a: 'Por supuesto. Te recomendamos contactar con el centro para concertar una clase de prueba o una visita al estudio antes de decidir.' },
+    { q: '¿Tienen política de cancelación?', a: 'Sí, se solicita avisar con antelación suficiente si no puedes asistir, especialmente en clases con plazas muy limitadas como Reformer o yoga aéreo. Consulta las condiciones con el centro.' },
+  ],
+  en: [
+    { q: 'Do I need previous experience to start?', a: 'No. Most of our classes are for all levels, including complete beginners. Instructors adapt postures and offer options so everyone can start at their own pace.' },
+    { q: 'What should I bring to class?', a: 'Comfortable clothing that lets you move freely. We provide mats and props for mat Pilates. For Reformer and aerial yoga you don\'t need anything extra.' },
+    { q: 'How do I book a place?', a: 'You can check the weekly schedule on this page and see availability for each session. To book, contact the studio through the official website or by phone.' },
+    { q: 'Are the groups small?', a: 'Yes. We limit places to a maximum of 10 per class, and 5-6 in Reformer and aerial yoga sessions. This ensures individual attention and correction.' },
+    { q: 'Can I try a class before signing up?', a: 'Of course. We recommend contacting the studio to arrange a trial class or a studio visit before you decide.' },
+    { q: 'Is there a cancellation policy?', a: 'Yes, we ask that you give sufficient notice if you can\'t attend, especially for classes with very limited places like Reformer or aerial yoga. Check the conditions with the studio.' },
+  ],
+};
+
+export const FAQ_HEADING: Record<Lang, { eyebrow: string; title: string; description: string }> = {
+  es: {
+    eyebrow: 'Preguntas frecuentes',
+    title: 'Resolvemos tus dudas',
+    description: 'Lo más habitual antes de empezar. Si tienes otra pregunta, escríbenos y te responderemos lo antes posible.',
+  },
+  en: {
+    eyebrow: 'Frequently asked questions',
+    title: 'We answer your questions',
+    description: 'The most common questions before starting. If you have another one, write to us and we\'ll get back to you soon.',
+  },
+};
+
+/* ---------- REVIEWS ---------- */
+
+export type Review = { name: string; project: string };
+
+export const REVIEWS: Record<Lang, Review[]> = {
+  es: [
+    { name: 'María G.', project: 'Yoga Suave' },
+    { name: 'Carlos R.', project: 'Pilates Reformer' },
+    { name: 'Lucía F.', project: 'Yoga Aéreo' },
+  ],
+  en: [
+    { name: 'María G.', project: 'Gentle Yoga' },
+    { name: 'Carlos R.', project: 'Pilates Reformer' },
+    { name: 'Lucía F.', project: 'Aerial Yoga' },
+  ],
+};
+
+export const REVIEWS_HEADING: Record<Lang, { eyebrow: string; title: string; description: string; disclaimer: string }> = {
+  es: {
+    eyebrow: 'Opiniones',
+    title: 'Lo que dicen quienes practican con nosotros',
+    description: 'Las reseñas reales de quienes ya forman parte del estudio aparecerán aquí. Mientras tanto, esto es lo que buscamos que cada persona viva en cada sesión.',
+    disclaimer: 'Las opiniones verificadas de la comunidad aparecerán aquí próximamente.'
+  },
+  en: {
+    eyebrow: 'Reviews',
+    title: 'What people who practise with us say',
+    description: 'Real reviews from those who are already part of the studio will appear here. In the meantime, this is what we aim for every person to experience in each session.',
+    disclaimer: 'Verified community reviews will appear here soon.'
+  },
+};
+
+/* ---------- FINAL CTA ---------- */
+
+export const FINAL_CTA: Record<Lang, { title: string; description: string; button: string }> = {
+  es: {
+    title: 'Tu primera clase te espera',
+    description: 'Da el primer paso hoy. Explora las disciplinas, elige tu horario y reserva tu plaza en el estudio.',
+    button: 'Empezar ahora',
+  },
+  en: {
+    title: 'Your first class is waiting',
+    description: 'Take the first step today. Explore the disciplines, choose your time and book your place at the studio.',
+    button: 'Get started',
   },
 };
 

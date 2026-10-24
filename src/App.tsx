@@ -3,13 +3,14 @@ import { PrefContext } from '@/context/PrefContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/sections/Hero';
-import { Services } from '@/sections/Services';
-import { Guidance } from '@/sections/Guidance';
-import { Portfolio } from '@/sections/Portfolio';
-import { Trust } from '@/sections/Trust';
+import { Classes } from '@/sections/Classes';
+import { Studio } from '@/sections/Studio';
+import { Schedule } from '@/sections/Schedule';
+import { Instructors } from '@/sections/Instructors';
+import { Gallery } from '@/sections/Gallery';
+import { GettingStarted } from '@/sections/GettingStarted';
+import { Location } from '@/sections/Location';
 import { Reviews } from '@/sections/Reviews';
-import { Process } from '@/sections/Process';
-import { Contact } from '@/sections/Contact';
 import { FAQ } from '@/sections/FAQ';
 import { FinalCTA } from '@/sections/FinalCTA';
 
@@ -22,13 +23,14 @@ function App() {
         <Header />
         <main>
           <Hero />
-          <Services />
-          <Guidance />
-          <Portfolio />
-          <Trust />
-          <Process />
+          <Classes />
+          <Studio />
+          <Schedule />
+          <Instructors />
+          <Gallery />
+          <GettingStarted />
+          <Location />
           <Reviews />
-          <Contact />
           <FAQ />
           <FinalCTA />
         </main>

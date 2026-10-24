@@ -34,7 +34,7 @@ createRoot(document.getElementById('root')!).render(
         <p className="text-sm opacity-80 mb-4">{error instanceof Error ? error.message : 'An unexpected error occurred.'}</p>
         <button
           onClick={() => window.location.reload()}
-          className="rounded-lg bg-teal-600 px-4 py-2 text-white hover:bg-teal-700 transition-colors"
+          className="rounded-lg bg-clay-600 px-4 py-2 text-white hover:bg-clay-700 transition-colors"
         >
           Reload Page
         </button>
