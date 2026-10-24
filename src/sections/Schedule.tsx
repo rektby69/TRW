@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react';
-import { ArrowRight, Filter, Users, Clock } from 'lucide-react';
+import { Filter, Users, Clock } from 'lucide-react';
 import { DAYS, DISCIPLINES, SCHEDULE, SCHEDULE_HEADING, type ScheduleSession } from '@/data/content';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
-import { ClassModal } from '@/components/ClassModal';
 import { cn } from '@/utils/cn';
 import { useLang } from '@/context/PrefContext';
 
@@ -13,7 +12,6 @@ export function Schedule() {
   const days = DAYS[lang];
   const disciplines = DISCIPLINES[lang];
   const [filter, setFilter] = useState('all');
-  const [selected, setSelected] = useState<ScheduleSession | null>(null);
 
   const sessionsByDay = useMemo(() => {
     const sessions = filter === 'all'
@@ -66,7 +64,6 @@ export function Schedule() {
                   day={day}
                   session={session}
                   lang={lang}
-                  onOpen={() => setSelected(session)}
                 />
               ) : (
                 <div className="flex min-h-[180px] flex-col justify-between rounded-2xl border border-dashed border-sage-200 bg-ivory-50/60 p-4 dark:border-ink-700 dark:bg-ink-800/40">
@@ -82,17 +79,14 @@ export function Schedule() {
           {t.disclaimer}
         </p>
       </div>
-
-      {selected && <ClassModal session={selected} onClose={() => setSelected(null)} />}
     </section>
   );
 }
 
-function CompactSessionCard({ day, session, lang, onOpen }: {
+function CompactSessionCard({ day, session, lang }: {
   day: string;
   session: ScheduleSession;
   lang: 'es' | 'en';
-  onOpen: () => void;
 }) {
   const t = SCHEDULE_HEADING[lang];
   const disc = DISCIPLINES[lang].find((item) => item.id === session.disciplineId);
@@ -133,11 +127,9 @@ function CompactSessionCard({ day, session, lang, onOpen }: {
         </div>
         <button
           type="button"
-          onClick={onOpen}
-          className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-sage-300 px-3 py-2 text-xs font-semibold text-sage-700 transition-all hover:bg-sage-600 hover:text-white hover:border-sage-600 dark:border-ink-600 dark:text-sage-300 dark:hover:bg-sage-600 dark:hover:text-white dark:hover:border-sage-600"
+          className="mt-3 inline-flex w-full items-center justify-center rounded-lg border border-sage-300 px-3 py-2 text-xs font-semibold text-sage-700 transition-colors hover:bg-sage-600 hover:text-white hover:border-sage-600 dark:border-ink-600 dark:text-sage-300 dark:hover:bg-sage-600 dark:hover:text-white dark:hover:border-sage-600"
         >
-          {lang === 'es' ? 'Ver clase' : 'View class'}
-          <ArrowRight className="h-3.5 w-3.5" />
+          {lang === 'es' ? 'Apuntarme' : 'Book this session'}
         </button>
       </div>
     </article>

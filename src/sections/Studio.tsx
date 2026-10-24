@@ -13,12 +13,12 @@ export function Studio() {
       <div className="mx-auto max-w-8xl px-6 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
           {/* Left: image */}
-          <Reveal className="order-2 lg:order-1">
-            <div className="relative overflow-hidden rounded-[1.75rem] shadow-2xl shadow-ink-900/12 ring-1 ring-sage-200/60 dark:ring-ink-800">
+          <Reveal className="order-2 flex lg:order-1 lg:h-full">
+            <div className="relative w-full overflow-hidden rounded-[1.75rem] shadow-2xl shadow-ink-900/12 ring-1 ring-sage-200/60 dark:ring-ink-800 lg:h-full">
               <img
                 src="https://images.pexels.com/photos/8436756/pexels-photo-8436756.jpeg?auto=compress&cs=tinysrgb&w=1200"
                 alt={lang === 'es' ? 'Clase de yoga en el estudio' : 'Yoga class at the studio'}
-                className="aspect-[4/3] w-full object-cover"
+                className="aspect-[4/3] w-full object-cover lg:h-full lg:aspect-auto"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink-950/30 to-transparent" />

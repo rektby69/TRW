@@ -1,4 +1,4 @@
-import { MapPin, ExternalLink, Info } from 'lucide-react';
+import { MapPin, Info } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { CONTACT } from '@/data/content';
 import { useLang } from '@/context/PrefContext';
@@ -47,27 +47,14 @@ export function Location() {
               </div>
             </div>
 
-            <a
-              href={t.websiteHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-sage-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-sage-900/20 transition-all hover:bg-sage-700 hover:shadow-xl active:scale-[0.98]"
-            >
-              {t.cta}
-              <ExternalLink className="h-4 w-4" />
-            </a>
-
-            <p className="mt-5 max-w-md text-caption text-ink-400 dark:text-ivory-300/40">
-              {t.note}
-            </p>
           </Reveal>
 
-          {/* Right: map embed */}
+          {/* Right: map photo */}
           <Reveal delay={150} className="overflow-hidden rounded-[1.75rem] shadow-xl ring-1 ring-sage-200/60 dark:ring-ink-700">
-            <iframe
-              title={lang === 'es' ? 'Mapa de Yoga Center Córdoba' : 'Map of Yoga Center Córdoba'}
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-4.8020%2C37.8740%2C-4.7780%2C37.8880&layer=mapnik&marker=37.8810%2C-4.7900"
-              className="h-full min-h-[360px] w-full border-0"
+            <img
+              src="https://images.pexels.com/photos/40269133/pexels-photo-40269133.jpeg?auto=compress&cs=tinysrgb&w=1200"
+              alt={lang === 'es' ? 'Vista aérea de la ciudad de Córdoba' : 'Aerial view of the city of Córdoba'}
+              className="h-full min-h-[360px] w-full object-cover"
               loading="lazy"
             />
           </Reveal>

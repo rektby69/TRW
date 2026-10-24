@@ -19,14 +19,14 @@ export function Classes() {
           description={heading.description}
         />
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {disciplines.map((d, i) => (
             <Reveal
               key={d.id}
               delay={i * 80}
               className="group relative flex flex-col overflow-hidden rounded-2xl bg-ivory-50 ring-1 ring-sage-200/60 dark:bg-ink-900 dark:ring-ink-800 transition-all duration-500 hover:shadow-2xl hover:shadow-ink-900/10 dark:hover:shadow-black/40 hover:ring-sage-300/80 dark:hover:ring-sage-700/60"
             >
-              <div className="relative aspect-[4/3] overflow-hidden">
+              <div className="relative aspect-[5/3] overflow-hidden">
                 <img
                   src={d.image}
                   alt={d.name}
@@ -43,12 +43,12 @@ export function Classes() {
                   <d.icon className="h-5 w-5" />
                 </span>
               </div>
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="text-h3 font-display font-normal text-sage-800 dark:text-ivory-100">{d.name}</h3>
-                <p className="mt-2 flex-1 text-body leading-relaxed text-ink-600 dark:text-ivory-300/70">
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-h4 font-display font-normal text-sage-800 dark:text-ivory-100">{d.name}</h3>
+                <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-600 dark:text-ivory-300/70">
                   {d.description}
                 </p>
-                <div className="mt-5 flex flex-wrap gap-4 text-caption text-ink-500 dark:text-ivory-300/60">
+                <div className="mt-4 flex flex-wrap gap-3 text-caption text-ink-500 dark:text-ivory-300/60">
                   <span className="inline-flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-sage-500" />
                     {d.duration}
@@ -63,7 +63,7 @@ export function Classes() {
                 </div>
                 <a
                   href="#horarios"
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-clay-600 dark:text-clay-400 transition-colors hover:text-clay-700 dark:hover:text-clay-300"
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-clay-600 dark:text-clay-400 transition-colors hover:text-clay-700 dark:hover:text-clay-300"
                 >
                   {lang === 'es' ? 'Ver horarios' : 'View schedule'}
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
