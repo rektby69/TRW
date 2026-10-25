@@ -1,3 +1,5 @@
+"use client";
+
 import { Star, MessageCircle } from 'lucide-react';
 import { REVIEWS, REVIEWS_HEADING } from '@/data/content';
 import { SectionHeading } from '@/components/SectionHeading';

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import { Menu, X, Sun, Moon, Globe } from 'lucide-react';
 import { NAV_LINKS, UI } from '@/data/content';
@@ -28,8 +30,8 @@ export function Header() {
       )}
     >
       <nav className="mx-auto flex max-w-8xl items-center justify-between px-6 py-3.5 lg:px-10">
-        <a href="#inicio" aria-label="Yoga Center Córdoba" className="group flex items-center transition-transform duration-300 hover:scale-[1.02]">
-          <img src="/logo.svg" alt="Yoga Center Córdoba" className="h-11 w-auto" />
+        <a href="#inicio" aria-label="Yoga Córdoba" className="group flex items-center transition-transform duration-300 hover:scale-[1.02]">
+          <img src="/logo.svg" alt="Yoga Córdoba" className="h-11 w-auto" />
         </a>
 
         <ul className="hidden items-center gap-8 md:flex">

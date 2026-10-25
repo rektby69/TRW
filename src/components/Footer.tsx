@@ -1,3 +1,5 @@
+"use client";
+
 import { MapPin } from 'lucide-react';
 import { FOOTER, NAV_LINKS, CONTACT } from '@/data/content';
 import { useLang } from '@/context/PrefContext';

@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import { HERO } from '@/data/content';
 import { useLang } from '@/context/PrefContext';

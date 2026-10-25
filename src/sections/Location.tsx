@@ -1,3 +1,5 @@
+"use client";
+
 import { MapPin, Info } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { CONTACT } from '@/data/content';

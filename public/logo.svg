@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 250" role="img" aria-labelledby="title desc">
-  <title id="title">Yoga Center Córdoba</title>
-  <desc id="desc">Yoga Center Córdoba logo with a stylized leaf and the words Yoga Center Córdoba</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" role="img" aria-labelledby="title desc">
+  <title id="title">Yoga Córdoba</title>
+  <desc id="desc">Yoga Córdoba wordmark with a stylized lotus mark</desc>
   <defs>
     <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#2d8f83"/>
@@ -8,13 +8,10 @@
     </linearGradient>
   </defs>
   <g fill="none" stroke="url(#brand)" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M113 25c-24 9-44 35-44 72 0 36 17 60 47 63 14 2 29-2 42-10V55c-16 4-32 14-45 29-15 17-24 38-24 58" stroke-width="7"/>
-    <path d="M113 25c24 9 44 35 44 72 0 36-17 60-47 63-14 2-29-2-42-10V55c16 4 32 14 45 29 15 17 24 38 24 58" stroke-width="7"/>
-    <path d="M113 160v-72" stroke-width="6"/>
-    <circle cx="113" cy="190" r="12" fill="url(#brand)" stroke="none"/>
+    <path d="M40 18c-10 6-18 16-18 32 0 15 8 25 20 27 6 1 12-1 17-4V32c-7 2-13 6-18 12-6 7-10 16-10 24" stroke-width="4"/>
+    <path d="M40 18c10 6 18 16 18 32 0 15-8 25-20 27-6 1-12-1-17-4V32c7 2 13 6 18 12 6 7 10 16 10 24" stroke-width="4"/>
+    <circle cx="40" cy="66" r="5" fill="url(#brand)" stroke="none"/>
   </g>
-  <g fill="url(#brand)" font-family="Arial, Helvetica, sans-serif" font-weight="300">
-    <text x="190" y="117" font-size="89" letter-spacing="7">YOGA</text>
-    <text x="193" y="178" font-size="35" letter-spacing="4">CENTER CÓRDOBA</text>
-  </g>
+  <text x="82" y="42" fill="url(#brand)" font-family="Fraunces, Georgia, serif" font-size="34" font-weight="400" letter-spacing="0.5">Yoga</text>
+  <text x="82" y="68" fill="#344e4b" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="600" letter-spacing="3">CÓRDOBA</text>
 </svg>

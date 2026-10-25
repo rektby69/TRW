@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, Check } from 'lucide-react';
 import { GETTING_STARTED } from '@/data/content';
 import { SectionHeading } from '@/components/SectionHeading';

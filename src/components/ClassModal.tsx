@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { X, Clock, User, ChartBar as BarChart3, Users, ArrowRight, Info, ArrowLeft, CalendarDays } from 'lucide-react';
 import { DISCIPLINES, BOOKING, DAYS, SCHEDULE_HEADING, type ScheduleSession } from '@/data/content';

@@ -1,6 +1,8 @@
 # Sentry Setup Guide (Error Reporting & Feedback Loops)
 
-Quick, on-point guide for setting up and configuring **Sentry** for `rektby69/TRW`.
+Quick, on-point guide for setting up and configuring **Sentry** for `rektby69/TRW` on **Next.js 16 (App Router)**.
+
+> The project is now a Next.js app — Vite-era references (`VITE_SENTRY_DSN`, `import.meta.env`, `main.tsx`) have been replaced by the Next.js conventions below.
 
 ---
 
@@ -14,7 +16,7 @@ Quick, on-point guide for setting up and configuring **Sentry** for `rektby69/TR
    - Organization Name: `trw` (or your preferred team slug).
 
 3. **Create Project**:
-   - Choose your platform (e.g., **JavaScript / TypeScript / React / Node.js**).
+   - Choose your platform: **Next.js**.
    - Set alert frequency: *Alert me on every new issue* (customizable later).
    - Project Name: `trw` (or `trw-web` / `trw-api`).
 
@@ -40,14 +42,19 @@ Add the following to your local `.env` and `.env.example`:
 
 ```env
 # Sentry Configuration
-VITE_SENTRY_DSN="https://examplePublicKey@o0.ingest.sentry.io/0"
+
+# Client DSN — safe to expose; prefixed with NEXT_PUBLIC_ so it reaches the browser.
+NEXT_PUBLIC_SENTRY_DSN="https://examplePublicKey@o0.ingest.sentry.io/0"
+
+# Build-time only — used by `@sentry/nextjs` / `sentry-cli` for source maps.
+# NEVER prefix these with NEXT_PUBLIC_ and never commit real values.
 SENTRY_ORG="your-org-slug"
 SENTRY_PROJECT="trw"
 SENTRY_AUTH_TOKEN="your-auth-token-for-build-and-sourcemaps"
 ```
 
 > [!NOTE]
-> For frontend code bundled via Vite, use `VITE_SENTRY_DSN` (or `NEXT_PUBLIC_SENTRY_DSN` if using Next.js). Never expose `SENTRY_AUTH_TOKEN` in client bundles.
+> `NEXT_PUBLIC_SENTRY_DSN` is the only Sentry value exposed to the browser bundle. `SENTRY_AUTH_TOKEN` is a server/build-time secret — never prefix it with `NEXT_PUBLIC_`.
 
 ---
 
@@ -55,34 +62,87 @@ SENTRY_AUTH_TOKEN="your-auth-token-for-build-and-sourcemaps"
 
 ### Install SDK
 ```bash
-npm install @sentry/react @sentry/browser
-# Or for Node / Express:
-# npm install @sentry/node @sentry/profiling-node
+npm install @sentry/nextjs
 ```
 
-### Initialize (Entry point: `main.tsx` or `index.ts`)
+### Initialize (Next.js App Router)
+
+With `@sentry/nextjs`, initialization is split between a server-side instrumentation file and a client config. The Next.js wizard (`npx @sentry/wizard@latest -i nextjs`) scaffolds these for you; the minimal hand-written version is shown below.
+
+#### `instrumentation.ts` (project root)
 ```typescript
-import * as Sentry from "@sentry/react";
+export async function register() {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("./sentry.server.config");
+  }
+  if (process.env.NEXT_RUNTIME === "edge") {
+    await import("./sentry.edge.config");
+  }
+}
+```
+
+#### `sentry.client.config.ts` (project root)
+```typescript
+import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   integrations: [
-    Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({
       maskAllText: false,
       blockAllMedia: true,
     }),
-    Sentry.feedbackIntegration({
-      colorScheme: "system",
-      buttonLabel: "Report a Bug",
-    }),
   ],
-  // Performance Monitoring
   tracesSampleRate: 1.0, // Adjust in production (e.g. 0.1)
-  // Session Replay
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
 });
+```
+
+#### `sentry.server.config.ts` & `sentry.edge.config.ts` (project root)
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 1.0,
+});
+```
+
+#### `next.config.ts`
+Wrap the default export with `withSentryConfig` once the SDK is installed:
+```typescript
+import { withSentryConfig } from "@sentry/nextjs";
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = { reactStrictMode: true };
+
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  tunnelRoute: "/monitoring",
+  disableLogger: true,
+});
+```
+
+### Route-level error boundaries (App Router)
+Add `src/app/<segment>/error.tsx` files to capture render errors per route segment:
+```tsx
+"use client";
+import * as Sentry from "@sentry/nextjs";
+import { useEffect } from "react";
+
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => { Sentry.captureException(error); }, [error]);
+  return (
+    <div>
+      <h2>Something went wrong.</h2>
+      <button onClick={() => reset()}>Try again</button>
+    </div>
+  );
+}
 ```
 
 ---
@@ -91,9 +151,9 @@ Sentry.init({
 
 - [ ] Trigger a test error:
   ```typescript
-  // Throw test exception
+  // Inside a client component handler
   throw new Error("Sentry verification test error");
   ```
 - [ ] Check Sentry Dashboard under **Issues** to confirm event arrival.
-- [ ] Test the **User Feedback** modal / widget submission.
-- [ ] Ensure source maps upload cleanly during production builds.
+- [ ] Test the **User Feedback** widget submission (if `feedbackIntegration` is enabled).
+- [ ] Ensure source maps upload cleanly during production builds (`npm run build`).

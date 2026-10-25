@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { FINAL_CTA } from '@/data/content';

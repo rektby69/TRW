@@ -13,8 +13,8 @@ This document defines the comprehensive architecture and implementation plan for
    - `client`: Automatically promoted upon completing their first session booking.
    - `admin`: Full studio operational management.
    - User status safeguards: `active`, `banned`, or `rejected`.
-4. **Dedicated Slugs over Modals**: All complex forms and views use unique route slugs (e.g., `/admin/sessions/new`, `/admin/sessions/:id/edit`, `/client/bookings/:id`). Modals are reserved exclusively for critical action confirmations and rapid inline field updates.
-5. **Top-Left Toasts & Shadcn Aesthetics**: System notifications surface via top-left screen toasts with high-fidelity styling adhering to our custom brand palette (`ink`, `sage`, `clay`, `ivory`).
+4. **Dedicated Slugs over Modals**: All complex forms and views use unique route slugs, implemented as Next.js App Router file-system routes (e.g., `app/admin/sessions/new/page.tsx`, `app/admin/sessions/[id]/edit/page.tsx`, `app/client/bookings/[id]/page.tsx`). Modals are reserved exclusively for critical action confirmations and rapid inline field updates.
+5. **Top-Right Toasts & Shadcn Aesthetics**: System notifications surface via top-right screen toasts with high-fidelity styling adhering to our custom brand palette (`ink`, `sage`, `clay`, `ivory`).
 
 ---
 
@@ -22,23 +22,27 @@ This document defines the comprehensive architecture and implementation plan for
 
 ```mermaid
 graph TD
-    Client[React 18 + Vite SPA] --> Router[React Router DOM v6]
+    Client[Next.js 16 App Router · React 19 RSC] --> Router[File-system routing · layouts · route groups]
     Client --> UI[Tailwind CSS + Shadcn Primitives + Lucide Icons]
-    Client --> Toast[Sonner / Radix Toast - Top Left]
-    Client --> SupabaseClient[@supabase/supabase-js]
+    Client --> Toast[Sonner - Top Right]
+    Client --> SupabaseClient[@supabase/supabase-js · NEXT_PUBLIC_* env]
     SupabaseClient --> Auth[Supabase Auth - JWT]
     SupabaseClient --> DB[(PostgreSQL + RLS)]
     SupabaseClient --> Storage[Supabase Storage Buckets]
     DB --> Edge[Supabase Edge Functions / Triggers]
 ```
 
+### Current Foundation (Already Migrated)
+
+The landing page already runs on **Next.js 16 (App Router)** with Turbopack, React 19, and Tailwind CSS. The document shell is owned by `src/app/layout.tsx` (metadata, fonts, and a no-flash theme/language script). `src/lib/supabase.ts` reads `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Theme + language (`es`/`en`) are managed client-side via `PrefContext` and the `usePreferences` hook, persisted in `localStorage`.
+
 ### New Packages to Add
 
-- `react-router-dom`: SPA routing with nested layouts for public, client, and admin routes.
-- `sonner`: Toast notification library positioned at `top-left`, easily styled with Tailwind.
+- `sonner`: Toast notification library positioned at `top-right`, easily styled with Tailwind.
 - `@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`, `@radix-ui/react-popover`: Accessible primitives matching Shadcn pattern.
 - `date-fns`: Date manipulation and recurrence handling for session schedules.
 - `recharts`: Lightweight data visualization for Admin reporting and occupancy metrics.
+- `@sentry/nextjs`: Next.js-native Sentry SDK (replaces the Vite-era `@sentry/react` setup) — initialized via `next.config.ts` instrumentation and `NEXT_PUBLIC_SENTRY_DSN`.
 
 ---
 
@@ -419,36 +423,42 @@ END IF;
 In alignment with requirements, each functional view has a distinct URL slug to ensure bookmarkability, deep linking, and a clean workflow. Modals are reserved strictly for confirmations and quick edits.
 
 ```
-/                                   -> Main Landing Page (Existing)
-/horarios                           -> Public Live Schedule & Booking Entry
-/login                              -> Authentication Login
-/signup                             -> Authentication Signup
-/forgot-password                    -> Password Recovery Request
-/reset-password                     -> Set New Password (Auth Callback)
-/profile                            -> User Account Profile & Preferences
+All routes are implemented as Next.js App Router pages under `src/app/`. Dynamic segments use the `[id]` folder convention rather than `:id` path params.
 
--- CLIENT PORTAL (/client/*)
-/client/dashboard                   -> Upcoming classes, quick actions, stats
-/client/bookings                    -> Full booking list (Upcoming / Past / Cancelled)
-/client/bookings/:id                -> Single booking detail (Location, Calendar .ics, Cancel action)
-/client/classes                     -> Browse & book upcoming available sessions
-
--- ADMIN PORTAL (/admin/*)
-/admin/dashboard                    -> KPI Overview (Occupancy, Revenue, Pending In-Person Collections)
-/admin/sessions                     -> Session List & Filterable Timetable
-/admin/sessions/new                 -> Create New Session / Recurring Template
-/admin/sessions/:id                 -> View Session Details, Attendee List & Check-in
-/admin/sessions/:id/edit            -> Edit Session Parameters, Slots, Exceptions
-/admin/session-types                -> CRUD Class Categories & Disciplines
-/admin/session-types/new            -> Create Class Category
-/admin/session-types/:id/edit       -> Edit Class Category
-/admin/bookings                     -> Master Booking Management & Check-In
-/admin/bookings/:id                 -> Booking Detail & Payment Collector Sheet
-/admin/clients                      -> Client & User Directory (Roles, Bans, Approvals)
-/admin/clients/:id                  -> Client 360° Profile & Booking History
-/admin/reporting                    -> Analytics, Occupancy Heatmap, Revenue Projections
-/admin/availability                 -> Visual Studio Calendar, Holidays & Exception Planner
-/admin/settings                     -> Studio Profile, Cancellation Policy Window, System Logs
+```
+app/
+├── page.tsx                         -> Main Landing Page (Existing)
+├── horarios/page.tsx                -> Public Live Schedule & Booking Entry
+├── login/page.tsx                   -> Authentication Login
+├── signup/page.tsx                  -> Authentication Signup
+├── forgot-password/page.tsx         -> Password Recovery Request
+├── reset-password/page.tsx          -> Set New Password (Auth Callback)
+├── profile/page.tsx                 -> User Account Profile & Preferences
+│
+├── client/                          -> CLIENT PORTAL (route group + shared layout)
+│   ├── layout.tsx                   -> ClientLayout (top nav, booking counter)
+│   ├── dashboard/page.tsx           -> Upcoming classes, quick actions, stats
+│   ├── bookings/page.tsx            -> Full booking list (Upcoming / Past / Cancelled)
+│   ├── bookings/[id]/page.tsx       -> Single booking detail (Location, Calendar .ics, Cancel)
+│   └── classes/page.tsx             -> Browse & book upcoming available sessions
+│
+└── admin/                           -> ADMIN PORTAL (route group + shared layout)
+    ├── layout.tsx                   -> AdminLayout (sidebar, active indicators)
+    ├── dashboard/page.tsx           -> KPI Overview (Occupancy, Revenue, Pending Collections)
+    ├── sessions/page.tsx            -> Session List & Filterable Timetable
+    ├── sessions/new/page.tsx        -> Create New Session / Recurring Template
+    ├── sessions/[id]/page.tsx       -> View Session Details, Attendee List & Check-in
+    ├── sessions/[id]/edit/page.tsx  -> Edit Session Parameters, Slots, Exceptions
+    ├── session-types/page.tsx       -> CRUD Class Categories & Disciplines
+    ├── session-types/new/page.tsx   -> Create Class Category
+    ├── session-types/[id]/edit/page.tsx -> Edit Class Category
+    ├── bookings/page.tsx            -> Master Booking Management & Check-In
+    ├── bookings/[id]/page.tsx       -> Booking Detail & Payment Collector Sheet
+    ├── clients/page.tsx             -> Client & User Directory (Roles, Bans, Approvals)
+    ├── clients/[id]/page.tsx        -> Client 360° Profile & Booking History
+    ├── reporting/page.tsx           -> Analytics, Occupancy Heatmap, Revenue Projections
+    ├── availability/page.tsx        -> Visual Studio Calendar, Holidays & Exception Planner
+    └── settings/page.tsx            -> Studio Profile, Cancellation Policy Window, System Logs
 ```
 
 ---
@@ -593,7 +603,7 @@ gantt
 1. Create SQL migration scripts covering all tables, enums, triggers, and RLS policies.
 2. Configure Supabase client in `src/lib/supabase.ts` with typed database definitions.
 3. Build Auth Context (`src/context/AuthContext.tsx`) handling login, session persistence, role fetching, and real-time status revocation if banned.
-4. Setup routing in `src/routes/` with protected route wrappers (`RequireAuth`, `RequireRole('admin')`, `RequireRole('client' | 'user')`).
+4. Implement protected routes as Next.js App Router **layout guards**: `src/app/(protected)/layout.tsx` and role-scoped layouts (`src/app/admin/layout.tsx`, `src/app/client/layout.tsx`) that check the Supabase session + `profiles.role` server-side and redirect unauthenticated/insufficient-role users. Use Server Components for the guard checks and client components only where interactivity is required (`"use client"`).
 
 ### Phase 2: Design System, Layouts & Top-Right Toasts
 

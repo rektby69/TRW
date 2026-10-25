@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from 'react';
 import { Filter, Users, Clock } from 'lucide-react';
 import { DAYS, DISCIPLINES, SCHEDULE, SCHEDULE_HEADING, type ScheduleSession } from '@/data/content';

@@ -1,3 +1,5 @@
+"use client";
+
 import { INSTRUCTORS, INSTRUCTORS_HEADING } from '@/data/content';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';

@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, Clock, Users } from 'lucide-react';
 import { DISCIPLINES, DISCIPLINES_HEADING } from '@/data/content';
 import { SectionHeading } from '@/components/SectionHeading';
