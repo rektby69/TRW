@@ -67,7 +67,7 @@ npm install @sentry/nextjs
 
 ### Initialize (Next.js App Router)
 
-With `@sentry/nextjs`, initialization is split between a server-side instrumentation file and a client config. The Next.js wizard (`npx @sentry/wizard@latest -i nextjs`) scaffolds these for you; the minimal hand-written version is shown below.
+With `@sentry/nextjs`, initialization is split between browser, server, and Edge runtime files. The current SDK also keeps the Next.js build wrapper in `@sentry/nextjs/config`. The Next.js wizard (`npx @sentry/wizard@latest -i nextjs`) scaffolds these for you; the minimal hand-written version is shown below.
 
 #### `instrumentation.ts` (project root)
 ```typescript
@@ -81,7 +81,7 @@ export async function register() {
 }
 ```
 
-#### `sentry.client.config.ts` (project root)
+#### `instrumentation-client.ts` (project root)
 ```typescript
 import * as Sentry from "@sentry/nextjs";
 
@@ -112,7 +112,7 @@ Sentry.init({
 #### `next.config.ts`
 Wrap the default export with `withSentryConfig` once the SDK is installed:
 ```typescript
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = { reactStrictMode: true };
@@ -120,10 +120,7 @@ const nextConfig: NextConfig = { reactStrictMode: true };
 export default withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  tunnelRoute: "/monitoring",
-  disableLogger: true,
+  silent: true,
 });
 ```
 
