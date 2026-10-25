@@ -1,3 +1,4 @@
+;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="c1a2341c-4cca-1616-cc59-e6dfd2be3944")}catch(e){}}();
 (globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push([typeof document === "object" ? document.currentScript : undefined,
 "[turbopack]/browser/dev/hmr-client/hmr-client.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -483,4 +484,5 @@ function triggerUpdate(msg) {
 }),
 ]);
 
+//# debugId=c1a2341c-4cca-1616-cc59-e6dfd2be3944
 //# sourceMappingURL=%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_1mojsayzyj2p6._.js.map

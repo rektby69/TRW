@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "debugId": "c2c84942-b8c3-9c9f-2be8-144efaaece28",
+  "sections": [
+    {"offset": {"line": 5, "column": 0}, "map": {"version":3,"sources":["file:///D:/Work/Visual%20Studio%20Projects/Web_projects/TRW/instrumentation-client.ts"],"sourcesContent":[";globalThis[\"_sentryRouteManifest\"] = \"{\\\"dynamicRoutes\\\":[],\\\"staticRoutes\\\":[{\\\"path\\\":\\\"/\\\"}]}\";globalThis[\"_sentryNextJsVersion\"] = \"16.4.1\";import * as Sentry from \"@sentry/nextjs\";\n\nSentry.init({\n  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,\n  tracesSampleRate: 0.1,\n});\n"],"names":["globalThis","dsn","tracesSampleRate"],"mappings":";AAGO;AAH0I;AAAhJA,UAAU,CAAC,uBAAuB,GAAG;AAA6DA,UAAU,CAAC,uBAAuB,GAAG;;AAExI,gMAAW,CAAC;IACVC,GAAG;IACHC,kBAAkB;AACpB"}}]
+}

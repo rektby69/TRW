@@ -1,3 +1,4 @@
+;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="07892f89-63d2-cda2-9013-0446490a257c")}catch(e){}}();
 module.exports = [
 "[project]/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.js [app-rsc] (ecmascript)", ((__turbopack_context__, module, exports) => {
 "use strict";
@@ -134,4 +135,5 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/src/app/layout.tsx [a
 }),
 ];
 
+//# debugId=07892f89-63d2-cda2-9013-0446490a257c
 //# sourceMappingURL=_01g9zq-vqu-02._.js.map

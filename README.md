@@ -1,6 +1,6 @@
-# Yoga Center Córdoba (TRW)
+# Yoga Córdoba (TRW)
 
-A modern, responsive web application for **Yoga Center Córdoba**, an artisanal wellness & yoga studio based in Córdoba, Spain. The application showcases studio offerings, instructor profiles, schedules, location details, and provides a multi-language (ES/EN) and dark/light experience. It is currently being extended with a full Supabase backend, client portal, on-premise payment workflows, and studio management dashboards.
+A modern, responsive web application for **Yoga Córdoba**, an artisanal wellness & yoga studio based in Córdoba, Spain. The application showcases studio offerings, instructor profiles, schedules, location details, and provides a multi-language (ES/EN) and dark/light experience. It is currently being extended with a full Supabase backend, client portal, on-premise payment workflows, and studio management dashboards.
 
 ---
 

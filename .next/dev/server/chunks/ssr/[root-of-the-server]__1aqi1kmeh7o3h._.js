@@ -1,3 +1,4 @@
+;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="d5996d08-dc9e-4381-35cf-bd86ef23c5c3")}catch(e){}}();
 module.exports = [
 "[externals]/next/dist/shared/lib/no-fallback-error.external.js [external] (next/dist/shared/lib/no-fallback-error.external.js, cjs)", ((__turbopack_context__, module, exports) => {
 
@@ -32,4 +33,5 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/src/app/page.tsx [app
 }),
 ];
 
+//# debugId=d5996d08-dc9e-4381-35cf-bd86ef23c5c3
 //# sourceMappingURL=%5Broot-of-the-server%5D__1aqi1kmeh7o3h._.js.map

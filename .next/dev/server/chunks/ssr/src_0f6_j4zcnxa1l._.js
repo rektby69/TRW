@@ -1,3 +1,4 @@
+;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="dadff7e6-7933-3ff1-712d-138a3a83a119")}catch(e){}}();
 (()=>{"use strict";module.exports = [
 "[project]/src/app/page.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -3725,4 +3726,5 @@ function cn(...parts) {
 }),
 ];})()
 
+//# debugId=dadff7e6-7933-3ff1-712d-138a3a83a119
 //# sourceMappingURL=src_0f6_j4zcnxa1l._.js.map
