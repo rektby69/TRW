@@ -1,8 +1,8 @@
-# Yoga Center Córdoba (TRW) — Backend & Dashboards Implementation Plan
+# Yoga Córdoba (TRW) — Backend & Dashboards Implementation Plan
 
 ## 1. Executive Summary & Architectural Overview
 
-This document defines the comprehensive architecture and implementation plan for adding a Supabase-powered backend, multi-role authentication system, and dedicated Admin & Client dashboards to the existing **Yoga Center Córdoba** web application.
+This document defines the comprehensive architecture and implementation plan for adding a Supabase-powered backend, multi-role authentication system, and dedicated Admin & Client dashboards to the existing **Yoga Córdoba** web application.
 
 ### Key Tenets
 
@@ -256,6 +256,7 @@ _Crucial: Bookings reference the individual scheduled session (`session_instance
 - `updated_at` (TIMESTAMPTZ, default `now()`)
 
 ##### Example `booking_rules` in `studio_settings`:
+
 ```json
 {
   "advance_booking_limit_days": 14, // Maximum days in advance a client can book (configurable by admin; e.g., 7, 14, 21, 30 days)
@@ -389,6 +390,7 @@ To prevent clients from reserving classes months ahead (which leads to uncommitt
 
 - **Why Days Rather Than Weeks**: Days provide precise operational granularity (e.g., 7 days, 10 days, 14 days, 21 days, 30 days) and calculate cleanly as `session_date <= (CURRENT_DATE + advance_days)`. A weeks-based setting restricts configuration to coarse 7-day jumps.
 - **Enforcement inside `create_booking_atomic`**:
+
 ```sql
 -- Retrieve studio advance booking limit (default: 14 days)
 SELECT COALESCE((value->>'advance_booking_limit_days')::integer, 14)
@@ -402,7 +404,8 @@ IF v_session.session_date > (CURRENT_DATE + v_advance_limit_days) THEN
     v_advance_limit_days, (v_session.session_date - v_advance_limit_days);
 END IF;
 ```
-- **Client UI Handling**: Classes scheduled beyond the advance window are visible on the schedule for visibility/planning, but the booking button is disabled with an explanatory chip (e.g., *"Reservas abren el DD/MM"* / *"Opens in X days"*).
+
+- **Client UI Handling**: Classes scheduled beyond the advance window are visible on the schedule for visibility/planning, but the booking button is disabled with an explanatory chip (e.g., _"Reservas abren el DD/MM"_ / _"Opens in X days"_).
 
 ### 4.4 Ban/Reject Enforcement
 
@@ -426,40 +429,42 @@ In alignment with requirements, each functional view has a distinct URL slug to 
 All routes are implemented as Next.js App Router pages under `src/app/`. Dynamic segments use the `[id]` folder convention rather than `:id` path params.
 
 ```
+
 app/
-├── page.tsx                         -> Main Landing Page (Existing)
-├── horarios/page.tsx                -> Public Live Schedule & Booking Entry
-├── login/page.tsx                   -> Authentication Login
-├── signup/page.tsx                  -> Authentication Signup
-├── forgot-password/page.tsx         -> Password Recovery Request
-├── reset-password/page.tsx          -> Set New Password (Auth Callback)
-├── profile/page.tsx                 -> User Account Profile & Preferences
+├── page.tsx -> Main Landing Page (Existing)
+├── horarios/page.tsx -> Public Live Schedule & Booking Entry
+├── login/page.tsx -> Authentication Login
+├── signup/page.tsx -> Authentication Signup
+├── forgot-password/page.tsx -> Password Recovery Request
+├── reset-password/page.tsx -> Set New Password (Auth Callback)
+├── profile/page.tsx -> User Account Profile & Preferences
 │
-├── client/                          -> CLIENT PORTAL (route group + shared layout)
-│   ├── layout.tsx                   -> ClientLayout (top nav, booking counter)
-│   ├── dashboard/page.tsx           -> Upcoming classes, quick actions, stats
-│   ├── bookings/page.tsx            -> Full booking list (Upcoming / Past / Cancelled)
-│   ├── bookings/[id]/page.tsx       -> Single booking detail (Location, Calendar .ics, Cancel)
-│   └── classes/page.tsx             -> Browse & book upcoming available sessions
+├── client/ -> CLIENT PORTAL (route group + shared layout)
+│ ├── layout.tsx -> ClientLayout (top nav, booking counter)
+│ ├── dashboard/page.tsx -> Upcoming classes, quick actions, stats
+│ ├── bookings/page.tsx -> Full booking list (Upcoming / Past / Cancelled)
+│ ├── bookings/[id]/page.tsx -> Single booking detail (Location, Calendar .ics, Cancel)
+│ └── classes/page.tsx -> Browse & book upcoming available sessions
 │
-└── admin/                           -> ADMIN PORTAL (route group + shared layout)
-    ├── layout.tsx                   -> AdminLayout (sidebar, active indicators)
-    ├── dashboard/page.tsx           -> KPI Overview (Occupancy, Revenue, Pending Collections)
-    ├── sessions/page.tsx            -> Session List & Filterable Timetable
-    ├── sessions/new/page.tsx        -> Create New Session / Recurring Template
-    ├── sessions/[id]/page.tsx       -> View Session Details, Attendee List & Check-in
-    ├── sessions/[id]/edit/page.tsx  -> Edit Session Parameters, Slots, Exceptions
-    ├── session-types/page.tsx       -> CRUD Class Categories & Disciplines
-    ├── session-types/new/page.tsx   -> Create Class Category
-    ├── session-types/[id]/edit/page.tsx -> Edit Class Category
-    ├── bookings/page.tsx            -> Master Booking Management & Check-In
-    ├── bookings/[id]/page.tsx       -> Booking Detail & Payment Collector Sheet
-    ├── clients/page.tsx             -> Client & User Directory (Roles, Bans, Approvals)
-    ├── clients/[id]/page.tsx        -> Client 360° Profile & Booking History
-    ├── reporting/page.tsx           -> Analytics, Occupancy Heatmap, Revenue Projections
-    ├── availability/page.tsx        -> Visual Studio Calendar, Holidays & Exception Planner
-    └── settings/page.tsx            -> Studio Profile, Cancellation Policy Window, System Logs
-```
+└── admin/ -> ADMIN PORTAL (route group + shared layout)
+├── layout.tsx -> AdminLayout (sidebar, active indicators)
+├── dashboard/page.tsx -> KPI Overview (Occupancy, Revenue, Pending Collections)
+├── sessions/page.tsx -> Session List & Filterable Timetable
+├── sessions/new/page.tsx -> Create New Session / Recurring Template
+├── sessions/[id]/page.tsx -> View Session Details, Attendee List & Check-in
+├── sessions/[id]/edit/page.tsx -> Edit Session Parameters, Slots, Exceptions
+├── session-types/page.tsx -> CRUD Class Categories & Disciplines
+├── session-types/new/page.tsx -> Create Class Category
+├── session-types/[id]/edit/page.tsx -> Edit Class Category
+├── bookings/page.tsx -> Master Booking Management & Check-In
+├── bookings/[id]/page.tsx -> Booking Detail & Payment Collector Sheet
+├── clients/page.tsx -> Client & User Directory (Roles, Bans, Approvals)
+├── clients/[id]/page.tsx -> Client 360° Profile & Booking History
+├── reporting/page.tsx -> Analytics, Occupancy Heatmap, Revenue Projections
+├── availability/page.tsx -> Visual Studio Calendar, Holidays & Exception Planner
+└── settings/page.tsx -> Studio Profile, Cancellation Policy Window, System Logs
+
+````
 
 ---
 
@@ -537,7 +542,7 @@ app/
 
 ---
 
-## 8. Brand & Design System Guide (Yoga Center Córdoba)
+## 8. Brand & Design System Guide (Yoga Córdoba)
 
 The new backend and dashboard interfaces must feel seamless and harmonious with the existing serene, high-end landing page.
 
@@ -576,7 +581,7 @@ The new backend and dashboard interfaces must feel seamless and harmonious with 
 
 ```mermaid
 gantt
-    title Yoga Center Backend & Dashboards Implementation
+    title Yoga Córdoba Backend & Dashboards Implementation
     dateFormat  YYYY-MM-DD
     section Phase 1: Foundation
     Supabase Schema & Migrations       :p1_1, 2026-10-25, 2d
@@ -596,7 +601,7 @@ gantt
     Reporting & Settings               :p4_5, after p4_4, 2d
     section Phase 5: Testing & QA
     End-to-End Testing & Sentry Audit  :p5_1, after p4_5, 3d
-```
+````
 
 ### Phase 1: Supabase Setup & Authentication Foundation
 
