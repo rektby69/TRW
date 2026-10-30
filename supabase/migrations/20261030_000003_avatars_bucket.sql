@@ -63,3 +63,4 @@ CREATE POLICY "Users read own avatar, admins read all"
       OR public.is_admin()
     )
   );
+
