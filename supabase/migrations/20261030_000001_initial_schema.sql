@@ -243,6 +243,17 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
 
 -- 12. HELPER FUNCTIONS & TRIGGERS
 
+-- Helper function to check admin status safely without triggering RLS recursion
+CREATE OR REPLACE FUNCTION public.is_admin(p_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = p_user_id AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
 -- A. Auto-create Profile on Auth Signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -458,24 +469,23 @@ ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
-CREATE POLICY "Users can read own profile"
+DROP POLICY IF EXISTS "Users can read own profile or admin reads all" ON public.profiles;
+CREATE POLICY "Users can read own profile or admin reads all"
     ON public.profiles FOR SELECT
-    USING (auth.uid() = id OR EXISTS (
-        SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-    ));
+    USING (auth.uid() = id OR public.is_admin());
 
 DROP POLICY IF EXISTS "Users can update own details" ON public.profiles;
-CREATE POLICY "Users can update own details"
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+CREATE POLICY "Users can update own profile"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Admin full control on profiles" ON public.profiles;
-CREATE POLICY "Admin full control on profiles"
+DROP POLICY IF EXISTS "Admin full manage profiles" ON public.profiles;
+CREATE POLICY "Admin full manage profiles"
     ON public.profiles FOR ALL
-    USING (EXISTS (
-        SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-    ));
+    USING (public.is_admin());
 
 -- Instructors Policies (Public view, Admin manage)
 DROP POLICY IF EXISTS "Public read instructors" ON public.instructors;
