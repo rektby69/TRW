@@ -1,6 +1,7 @@
 "use client";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Header } from "@/components/Header";
 
 export default function AdminLayout({
   children,
@@ -13,7 +14,8 @@ export default function AdminLayout({
       redirectTo="/auth/login"
       forbiddenRedirectTo="/unauthorized"
     >
-      {children}
+      <Header />
+      <div className="pt-[72px]">{children}</div>
     </ProtectedRoute>
   );
 }

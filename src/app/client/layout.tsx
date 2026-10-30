@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
+import { Header } from "@/components/Header";
 
 export default function ClientLayout({
   children,
@@ -22,7 +23,8 @@ export default function ClientLayout({
 
   return (
     <ProtectedRoute allowedRoles={["user", "client"]} redirectTo="/auth/login">
-      {children}
+      <Header />
+      <div className="pt-[72px]">{children}</div>
     </ProtectedRoute>
   );
 }

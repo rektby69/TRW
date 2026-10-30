@@ -117,32 +117,75 @@ Listens to `supabase.auth.onAuthStateChange` — always syncs DB profile on ever
 | `/auth/signup` | public | Email/password signup with name + phone metadata |
 | `/admin/dashboard` | admin | KPIs (revenue, clients, sessions, pending), bookings, system logs |
 | `/client/dashboard` | user/client | Profile snapshot, role badge, booking info |
-| `/profile` | all authenticated | Universal: personal info, address, emergency/health, live save |
+| `/profile` | all authenticated | Universal: personal info, address, emergency/health, avatar upload |
 | `/unauthorized` | public | 403 page with links to dashboard and home |
 
-### 1.8 Header Avatar Dropdown (`src/components/Header.tsx`)
+### 1.8 Shared Header Component (`src/components/Header.tsx`)
+
+The `<Header />` is a single component used across all pages — homepage, dashboards, and profile. Mount it in each **layout file**, not each page, to avoid duplication.
 
 - **Guest**: "Log in" button.
-- **Authenticated**: Avatar pill — profile picture or initials fallback (e.g. `EG`).
-- Dropdown (outside-click dismissal): identity + role badge, Profile link, Dashboard link, Sign Out.
-- Dashboard link is dynamic: `/admin/dashboard` for admin, `/client/dashboard` for others.
+- **Authenticated**: Avatar pill (photo or initials fallback) → dropdown with:
+  - Identity + role badge
+  - Profile link (`/profile`)
+  - Dashboard link — label and icon adapt to role:
+    - `user` / `client` → `LayoutDashboard` + "Mi Panel" / "My Dashboard" → `/client/dashboard`
+    - `admin` → `ShieldCheck` + "Panel Admin" / "Admin Panel" → `/admin/dashboard`
+  - Sign Out
+- **Fixed position** (`fixed inset-x-0 top-0 z-50`) — transparent over hero, solid with blur on scroll.
+- Add `pt-[72px]` to the page wrapper in each layout to compensate for the fixed header height.
+- **Dropdown must use solid background** (`bg-white dark:bg-ink-900`) not semi-transparent — glassmorphism becomes unreadable against varied page content.
+- Language toggle shows the **opposite** label (`EN` when in ES, `ES` when in EN).
 
-### 1.9 Quirks & Environment Notes
+### 1.9 i18n & Theme — How It Works
+
+Both are **zero-config for new users**:
+
+| Preference | First visit | Manual override | Persisted |
+|---|---|---|---|
+| Language | `navigator.language` → `es` if Spanish, `en` otherwise | Globe/lang toggle button | `localStorage['lang']` |
+| Theme | `prefers-color-scheme` media query | Sun/Moon toggle | `localStorage['theme']` |
+
+A **no-flash inline script** in `src/app/layout.tsx` reads `localStorage` and applies the `dark` class + `lang` attribute to `<html>` before React hydrates — eliminates theme/language flash on page load.
+
+All UI strings go in `src/data/content.ts` as `Record<Lang, ...>` objects. The `UI` export covers header/nav labels; all other sections (hero, schedule, etc.) have their own exports. Add new keys to both `es` and `en` simultaneously.
+
+### 1.10 Avatar Upload (Supabase Storage)
+
+**Bucket**: `avatars` — private (not public), 2 MB limit, image types only.
+
+**File path convention**: `avatars/<user_id>/avatar.<ext>` — the user ID as the folder name enables RLS to be path-based.
+
+**RLS on `storage.objects`** (use `storage.foldername(name))[1]` to extract the user folder):
+- Users: upload/update/delete/read their own folder only
+- Admins (`public.is_admin()`): read all folders
+
+**Frontend flow**: pick file → validate (type + size) → show local preview immediately → `supabase.storage.from('avatars').upload(path, file, { upsert: true })` → `createSignedUrl(path, 10_years)` → save signed URL to `profiles.avatar_url` → `refreshProfile()` propagates to header.
+
+> [!NOTE]
+> Signed URLs expire. For production, prefer short-lived URLs regenerated on load, or switch to a public bucket with RLS enforced via policies rather than URL secrecy. For a studio app where privacy isn't critical, the 10-year signed URL is fine for now.
+
+### 1.11 Quirks & Environment Notes
 
 | Issue | Fix |
 |---|---|
 | Turbopack build fails (Sentry + instrumentation) | Always build with `npx next build --webpack` |
-| `NEXT_PUBLIC_SUPABASE_URL` pointing to dead project | Update `.env` — URL and anon key must be from the **same** Supabase project |
-| TypeScript `Argument of type ... not assignable to 'never'` on Supabase update | Add `Views`, `Functions`, `Enums` sections to `Database` interface (can be empty, but must exist) |
-| `PrefContext` has no exported Provider component | Use `PrefContext.Provider` directly in `src/app/page.tsx`; do not import `PrefProvider` |
+| `NEXT_PUBLIC_SUPABASE_URL` pointing to dead project | URL and anon key must be from the **same** Supabase project |
+| TypeScript `Argument of type ... not assignable to 'never'` on Supabase update | Add `Views`, `Functions`, `Enums` sections to `Database` interface (can be empty, must exist) |
+| `PrefContext` has no exported Provider component | Use `PrefContext.Provider` directly in `src/app/page.tsx`; never import `PrefProvider` |
 | Smooth scroll jitter on Next.js route transitions | Add `data-scroll-behavior="smooth"` to `<html>` alongside `className="scroll-smooth"` |
+| Dropdown unreadable over page content | Use solid `bg-white dark:bg-ink-900` — not semi-transparent — for dropdown menus |
+| `router.push` on forbidden routes causes back-button loops | Always use `router.replace()` for security redirects |
+| `<Header />` used in dashboard but layout has no padding | Add `pt-[72px]` wrapper div in the layout, not each page |
 
-### 1.10 Decisions Made
+### 1.12 Decisions Made
 
-- **On-premise payments only** — no Stripe, no online checkout. Payment statuses: `pending_on_premise`, `paid_on_premise`, `waived`, `refunded`.
-- **Slug-based routes over modals** — modals only for confirmations. All forms = dedicated page routes.
-- **Spanish UI copy** with `lang === 'es'` toggle; brand palette: `ivory`, `ink`, `sage`, `clay`.
-- **Anon key (publishable)** is safe in the browser as long as RLS is enabled and configured. Do not use the service role key on the client.
+- **On-premise payments only** — no Stripe. Payment statuses: `pending_on_premise`, `paid_on_premise`, `waived`, `refunded`.
+- **Slug-based routes over modals** — modals only for confirmations.
+- **Spanish UI copy default** with EN toggle; brand palette: `ivory`, `ink`, `sage`, `clay`.
+- **Anon key is safe in browser** as long as RLS is enabled. Never use the service role key client-side.
+- **Single `<Header />` component** shared across all pages — mounted in layout files, not individual pages.
+- **`SECURITY DEFINER` helper `is_admin()`** — required whenever an admin RLS policy on `profiles` would self-reference the same table (causes infinite recursion).
 
 ---
 
