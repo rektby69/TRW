@@ -583,63 +583,135 @@ The new backend and dashboard interfaces must feel seamless and harmonious with 
 gantt
     title Yoga Córdoba Backend & Dashboards Implementation
     dateFormat  YYYY-MM-DD
-    section Phase 1: Foundation
-    Supabase Schema & Migrations       :p1_1, 2026-10-25, 2d
-    RLS Policies & Triggers            :p1_2, after p1_1, 2d
-    Routing & Auth Integration         :p1_3, after p1_2, 2d
-    section Phase 2: Design & Shared UI
-    Design System & Top-Right Toasts   :p2_1, after p1_3, 2d
-    Navigation Layouts (Admin/Client)  :p2_2, after p2_1, 2d
-    section Phase 3: Client Portal
-    Client Dashboard & Class Booking   :p3_1, after p2_2, 3d
-    Client Bookings Management         :p3_2, after p3_1, 2d
-    section Phase 4: Admin Portal
-    Session & Template CRUD            :p4_1, after p3_2, 3d
-    Calendar Availability & Exceptions :p4_2, after p4_1, 2d
-    Booking & In-Person Payment Sheet  :p4_3, after p4_2, 3d
-    Client Directory & Role Management :p4_4, after p4_3, 2d
-    Reporting & Settings               :p4_5, after p4_4, 2d
-    section Phase 5: Testing & QA
-    End-to-End Testing & Sentry Audit  :p5_1, after p4_5, 3d
-````
+    section Phase 1: Authentication & User Profiles
+    Project Infrastructure             :p1_1, 2026-10-30, 1d
+    Authentication Flow                :p1_2, after p1_1, 2d
+    Profile Management & Database      :p1_3, after p1_2, 2d
+    UI Shell (Responsive Sidebars)     :p1_4, after p1_3, 2d
+    Metadata & SEO                     :p1_5, after p1_4, 1d
+    section Phase 2: Design System & Shared Primitives
+    Design Tokens & Top-Right Toasts   :p2_1, after p1_5, 2d
+    Shared Components & Tables         :p2_2, after p2_1, 2d
+    section Phase 3: Client Experience & Booking Engine
+    Class Timetable & Slot Window      :p3_1, after p2_2, 2d
+    Atomic Booking Flow                :p3_2, after p3_1, 2d
+    Client Dashboard & My Bookings     :p3_3, after p3_2, 2d
+    section Phase 4: Admin Operational Management
+    Admin Dashboard & Daily Roster     :p4_1, after p3_3, 2d
+    Sessions & Templates CRUD (Slugs)  :p4_2, after p4_1, 3d
+    Attendance & In-Person Payments    :p4_3, after p4_2, 2d
+    Clients Directory & Access Control :p4_4, after p4_3, 2d
+    Reporting & Studio Settings        :p4_5, after p4_4, 2d
+    section Phase 5: Verification & Quality Assurance
+    Auditing, Edge Cases & Sentry      :p5_1, after p4_5, 3d
+```
 
-### Phase 1: Supabase Setup & Authentication Foundation
+### Phase 1: Authentication & User Profiles — Implementation Plan
 
-1. Create SQL migration scripts covering all tables, enums, triggers, and RLS policies.
-2. Configure Supabase client in `src/lib/supabase.ts` with typed database definitions.
-3. Build Auth Context (`src/context/AuthContext.tsx`) handling login, session persistence, role fetching, and real-time status revocation if banned.
-4. Implement protected routes as Next.js App Router **layout guards**: `src/app/(protected)/layout.tsx` and role-scoped layouts (`src/app/admin/layout.tsx`, `src/app/client/layout.tsx`) that check the Supabase session + `profiles.role` server-side and redirect unauthenticated/insufficient-role users. Use Server Components for the guard checks and client components only where interactivity is required (`"use client"`).
+#### Overview
+This phase establishes the foundational project infrastructure for the backend transition. We will integrate Supabase, set up authentication, and create the core dashboard layout.
+
+#### 1. Project Infrastructure
+- [ ] **Supabase Initialization**:
+  - Ensure `@supabase/supabase-js` is installed.
+  - Create/verify `src/lib/supabase.ts` for the client instance.
+  - Verify environment variables in `.env` (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and compatibility with `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+
+#### 2. Authentication Flow
+- [ ] **Auth Context**:
+  - Create an `AuthContext` (`src/context/AuthContext.tsx`) to manage the session state globally.
+- [ ] **Login Page**:
+  - Create `src/app/auth/login/page.tsx` (and `src/pages/auth/Login.tsx` / redirect).
+  - Implement email/password login.
+- [ ] **Signup Page**:
+  - Create `src/app/auth/signup/page.tsx` (and `src/pages/auth/Signup.tsx` / redirect).
+  - Implement email/password registration.
+- [ ] **Protected Routes**:
+  - Implement a protected route wrapper / layout guard for dashboard pages (`src/app/admin/layout.tsx`, `src/app/client/layout.tsx`, `src/app/(protected)/layout.tsx`).
+
+#### 3. Profile Management
+- [ ] **Database Migration**:
+  - Create a migration to ensure the `profiles` table exists with fields: `id`, `first_name`, `last_name`, `phone_number`, `address_line1`, `address_line2`, `post_code`, `city`, `role`, `status`, `emergency_contact_name`, `emergency_contact_phone`, `notes`, `created_at`, `updated_at`.
+- [ ] **Role Trigger**:
+  - Create a Supabase function and trigger to automatically create a profile entry for new users with the `user` role (`handle_new_user`).
+
+#### 4. UI Shell
+- [ ] **Dashboard Layout**:
+  - Create `src/components/layout/DashboardLayout.tsx` (and role-specific admin/client shells).
+  - Implement a responsive Sidebar using Shadcn components.
+  - Adhere to the brand guide:
+    - Background: `ivory-50` (`#fbfdfc`) light / `ink-950` (`#111a1c`) dark (or `hsl(220 15% 8%)`)
+    - Primary: `sage-600` (`#37837b`) / `hsl(24 95% 53%)` warm accents
+    - Glassmorphism for sidebars (`backdrop-blur-md bg-ivory-50/90 dark:bg-ink-900/90 border-r border-sage-200/60 dark:border-ink-800`).
+
+#### 5. Metadata & SEO
+- [ ] Ensure proper title tags and meta descriptions for all new auth and dashboard pages.
+
+---
 
 ### Phase 2: Design System, Layouts & Top-Right Toasts
 
-1. Install and configure `sonner` with top-right positioning (`position="top-right"`) and custom TRW CSS theme.
-2. Build shared Shadcn-style components: `Button`, `Input`, `Select`, `Dialog`, `Badge`, `Card`, `Table`.
-3. Build dedicated layout shells:
-   - `AdminLayout`: Sidebar navigation with collapse mode, active route indicators, quick studio switcher.
-   - `ClientLayout`: Top navigation bar with user profile dropdown and booking counter.
+#### 1. Notification System
+- [ ] Install and configure `sonner` with top-right positioning (`position="top-right"`).
+- [ ] Custom styling adhering to TRW brand palette (`sage`, `clay`, `ink`, `ivory`).
+
+#### 2. Shared UI Components (Shadcn pattern)
+- [ ] Accessible primitives: `Button`, `Input`, `Select`, `Dialog`, `Badge`, `Card`, `Table`.
+- [ ] Light & dark mode parity with CSS variables and Tailwind.
+
+#### 3. Navigation Shells
+- [ ] **Admin Layout**: Collapsible sidebar, active route highlights, studio info, user avatar.
+- [ ] **Client Layout**: Streamlined top navigation, active booking badge, quick profile menu.
+
+---
 
 ### Phase 3: Client Experience & Booking Flow
 
-1. Integrate live class availability on the public landing page (`/horarios` and class modal).
-2. Wire up the atomic booking flow with immediate promotion to `client` role.
-3. Build `/client/dashboard` with next class countdown and quick cancellation.
-4. Build `/client/bookings` and `/client/bookings/:id` with in-person payment guidance and `.ics` calendar file generator.
+#### 1. Public Class Schedule
+- [ ] Live timetable displaying upcoming sessions filtered by discipline and instructor.
+- [ ] 14-day rolling advance booking window countdown indicators for future sessions.
 
-### Phase 4: Admin Suite & Operational Management
+#### 2. Atomic Booking Flow
+- [ ] Wire atomic reservation via `create_booking_atomic` Postgres function.
+- [ ] Automatic promotion of user to `client` role upon first reservation.
+- [ ] In-person payment model (`pending_on_premise`).
 
-1. Build `/admin/dashboard` with real-time check-in stats and today's roster.
-2. Build `/admin/sessions` list, `/admin/sessions/new`, and `/admin/sessions/:id/edit` (slug-based forms).
-3. Build `/admin/availability` for recurring schedules and holiday blackout rules.
-4. Build `/admin/bookings` with in-person payment collection workflows.
-5. Build `/admin/clients` with ban/reject management and client history inspection.
-6. Build `/admin/reporting` with occupancy rates and revenue forecasting.
+#### 3. Client Dashboard & Bookings
+- [ ] `/client/dashboard`: Next class countdown, studio announcements, quick cancel.
+- [ ] `/client/bookings` and `/client/bookings/[id]`: Booking details, status badge, calendar `.ics` download, payment guidance.
 
-### Phase 5: Hardening, Auditing & Edge Cases
+---
 
-1. Validate all edge cases: overbooking race conditions, late cancellations, session cancellations with attendee notifications.
-2. Configure login history tracking listener and audit logging.
-3. Ensure full Sentry error boundaries on all dashboard routes.
-4. Verify dark/light mode parity and responsive layout on mobile/tablet.
+### Phase 4: Admin Operational Management Suite
+
+#### 1. Operational Overview
+- [ ] `/admin/dashboard`: Studio health metrics (occupancy %, today's check-ins, pending payments).
+- [ ] Live daily class roster with progress counters.
+
+#### 2. Sessions Management (Slug-based Routes)
+- [ ] `/admin/sessions`: Filterable sessions data table.
+- [ ] `/admin/sessions/new`: New session instance creation form.
+- [ ] `/admin/sessions/[id]/edit`: Session edit route.
+- [ ] `/admin/sessions/[id]`: Detailed session roster, one-click attendance ("Attended"/"No-Show"), and payment toggle ("Paid on Premise").
+
+#### 3. Availability & Blackout Dates
+- [ ] `/admin/availability`: Weekly recurring template manager and holiday exception calendar.
+
+#### 4. Client Directory & Role Control
+- [ ] `/admin/clients` & `/admin/clients/[id]`: User directory, lifetime stats, role adjustment, and ban enforcement.
+
+#### 5. Reporting & Studio Configuration
+- [ ] `/admin/reporting`: Occupancy, popular classes, and projected revenue charts.
+- [ ] `/admin/settings`: Advance booking limits, cancellation cutoff hours, max active bookings.
+
+---
+
+### Phase 5: Verification, Auditing & Hardening
+
+- [ ] Multi-role authorization checks and immediate ban session invalidation.
+- [ ] Concurrency and double-booking stress testing.
+- [ ] Sentry error boundary coverage across all routes.
+- [ ] Responsive UI verification across mobile, tablet, and desktop.
 
 ---
 
