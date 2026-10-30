@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import { HERO } from '@/data/content';
 import { useLang } from '@/context/PrefContext';
@@ -7,16 +8,25 @@ import { useLang } from '@/context/PrefContext';
 export function Hero() {
   const lang = useLang();
   const t = HERO[lang];
+  const [scrollOffset, setScrollOffset] = useState(0);
+
+  useEffect(() => {
+    const updateParallax = () => setScrollOffset(Math.min(window.scrollY, 240));
+    updateParallax();
+    window.addEventListener('scroll', updateParallax, { passive: true });
+    return () => window.removeEventListener('scroll', updateParallax);
+  }, []);
 
   return (
-    <section id="inicio" className="relative isolate flex min-h-[720px] items-end overflow-hidden bg-ink-950 pt-32 pb-12 lg:min-h-[780px] lg:items-center lg:pt-28 lg:pb-16">
+    <section id="inicio" className="relative isolate flex min-h-[720px] items-end overflow-hidden bg-ink-950 pt-40 pb-12 lg:min-h-[780px] lg:items-center lg:pt-36 lg:pb-16">
       <img
         src="https://images.pexels.com/photos/3822672/pexels-photo-3822672.jpeg?auto=compress&cs=tinysrgb&w=1800"
         alt={lang === 'es' ? 'Sesión de yoga en el estudio con luz natural' : 'Yoga session at the studio in natural light'}
-        className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+        className="absolute inset-0 -z-20 h-full w-full object-cover object-center transition-transform duration-200 ease-out"
+        style={{ transform: `translateY(${scrollOffset * 0.2}px) scale(${1 + scrollOffset * 0.0001})` }}
         loading="eager"
       />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink-950 via-ink-950/80 to-ink-950/15" />
+      <div className="hero-overlay absolute inset-0 -z-10 bg-gradient-to-r from-ink-950 via-ink-950/80 to-ink-950/15" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-950/75 via-transparent to-ink-950/20" />
 
       <div className="relative mx-auto w-full max-w-8xl px-6 lg:px-10">

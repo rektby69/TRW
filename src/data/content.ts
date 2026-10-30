@@ -381,6 +381,9 @@ export const SCHEDULE_HEADING: Record<Lang, {
   viewClass: string;
   bookClass: string;
   minLabel: string;
+  dayFilter: string;
+  selectedDayLabel: string;
+  sessionsLabel: string;
 }> = {
   es: {
     eyebrow: 'Horarios',
@@ -404,6 +407,9 @@ export const SCHEDULE_HEADING: Record<Lang, {
     viewClass: 'Ver clase',
     bookClass: 'Reservar clase',
     minLabel: 'min',
+    dayFilter: 'Día',
+    selectedDayLabel: 'Clases del día',
+    sessionsLabel: 'clases',
   },
   en: {
     eyebrow: 'Schedule',
@@ -427,6 +433,9 @@ export const SCHEDULE_HEADING: Record<Lang, {
     viewClass: 'View class',
     bookClass: 'Book class',
     minLabel: 'min',
+    dayFilter: 'Day',
+    selectedDayLabel: 'Classes for the day',
+    sessionsLabel: 'classes',
   },
 };
 

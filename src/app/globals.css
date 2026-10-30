@@ -38,6 +38,14 @@
   .text-pretty {
     text-wrap: pretty;
   }
+  .hero-overlay {
+    animation: overlay-breathe 12s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes overlay-breathe {
+  0% { opacity: 0.88; }
+  100% { opacity: 1; }
 }
 
 *:focus-visible {
