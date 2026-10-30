@@ -122,20 +122,14 @@ Listens to `supabase.auth.onAuthStateChange` — always syncs DB profile on ever
 
 ### 1.8 Shared Header Component (`src/components/Header.tsx`)
 
-The `<Header />` is a single component used across all pages — homepage, dashboards, and profile. Mount it in each **layout file**, not each page, to avoid duplication.
-
-- **Guest**: "Log in" button.
-- **Authenticated**: Avatar pill (photo or initials fallback) → dropdown with:
-  - Identity + role badge
-  - Profile link (`/profile`)
-  - Dashboard link — label and icon adapt to role:
-    - `user` / `client` → `LayoutDashboard` + "Mi Panel" / "My Dashboard" → `/client/dashboard`
-    - `admin` → `ShieldCheck` + "Panel Admin" / "Admin Panel" → `/admin/dashboard`
-  - Sign Out
-- **Fixed position** (`fixed inset-x-0 top-0 z-50`) — transparent over hero, solid with blur on scroll.
-- Add `pt-[72px]` to the page wrapper in each layout to compensate for the fixed header height.
-- **Dropdown must use solid background** (`bg-white dark:bg-ink-900`) not semi-transparent — glassmorphism becomes unreadable against varied page content.
-- Language toggle shows the **opposite** label (`EN` when in ES, `ES` when in EN).
+The `<Header />` supports two clean modes via `variant`:
+- **`public` (Homepage)**: Transparent-over-hero, transitions to blurred glass on scroll (`window.scrollY > 24`), renders public anchor links (`#clases`, `#horarios`, etc.) and the "Ver horarios" CTA.
+- **`app` (Dashboards & Profile)**: Always solid (`bg-ivory-50/95 dark:bg-ink-900/95`), renders **no public landing page links**, logo links cleanly to homepage (`/`), and includes user avatar menu, language toggle, and theme switch.
+- **Fixed position** (`fixed inset-x-0 top-0 z-50`): layouts using `<Header variant="app" />` include a `pt-[68px]` container to prevent content underlap.
+- **Unambiguous Language Toggle**: Shows `ES / EN` with the active language bolded/accented, eliminating user confusion between "current language" vs "switch target".
+- **Theme-Adaptive Logo (`src/components/Logo.tsx`)**: Reusable SVG component that adapts the subtitle text ("CÓRDOBA") between dark teal in light mode and bright ivory in dark mode, avoiding muddy CSS `invert` filters.
+- **Transparent Avatar Fallback**: Avatar `<img>` uses `bg-white` to guarantee high contrast even if the user uploads a transparent PNG with black line art in dark mode.
+- **Dropdown**: Uses solid `bg-white dark:bg-ink-900` with high z-index and outside-click dismissal to stay readable over any page section.
 
 ### 1.9 i18n & Theme — How It Works
 
@@ -143,12 +137,12 @@ Both are **zero-config for new users**:
 
 | Preference | First visit | Manual override | Persisted |
 |---|---|---|---|
-| Language | `navigator.language` → `es` if Spanish, `en` otherwise | Globe/lang toggle button | `localStorage['lang']` |
+| Language | `navigator.language` → `es` if Spanish, `en` otherwise | `ES / EN` toggle button | `localStorage['lang']` |
 | Theme | `prefers-color-scheme` media query | Sun/Moon toggle | `localStorage['theme']` |
 
-A **no-flash inline script** in `src/app/layout.tsx` reads `localStorage` and applies the `dark` class + `lang` attribute to `<html>` before React hydrates — eliminates theme/language flash on page load.
-
-All UI strings go in `src/data/content.ts` as `Record<Lang, ...>` objects. The `UI` export covers header/nav labels; all other sections (hero, schedule, etc.) have their own exports. Add new keys to both `es` and `en` simultaneously.
+- **Root Provider Mounting**: `PrefProvider` must wrap `AuthProvider` inside `src/app/providers.tsx` at the root layout so that every route, layout, and client component has access to `usePref()` without runtime errors.
+- **No-flash inline script**: in `src/app/layout.tsx`, reads `localStorage` and applies `.dark` and `lang="..."` to `<html>` prior to React hydration.
+- **Full Light & Dark Dashboard Support**: Both `/admin/dashboard` and `/client/dashboard` adapt fully to both light and dark themes using semantic Tailwind tokens (`bg-ivory-50 dark:bg-ink-950`, `bg-white dark:bg-ink-900`, etc.).
 
 ### 1.10 Avatar Upload (Supabase Storage)
 
@@ -172,11 +166,12 @@ All UI strings go in `src/data/content.ts` as `Record<Lang, ...>` objects. The `
 | Turbopack build fails (Sentry + instrumentation) | Always build with `npx next build --webpack` |
 | `NEXT_PUBLIC_SUPABASE_URL` pointing to dead project | URL and anon key must be from the **same** Supabase project |
 | TypeScript `Argument of type ... not assignable to 'never'` on Supabase update | Add `Views`, `Functions`, `Enums` sections to `Database` interface (can be empty, must exist) |
-| `PrefContext` has no exported Provider component | Use `PrefContext.Provider` directly in `src/app/page.tsx`; never import `PrefProvider` |
+| `usePref must be used within PrefContext` in layouts | Mount `PrefProvider` globally in `src/app/providers.tsx`, not per-page |
 | Smooth scroll jitter on Next.js route transitions | Add `data-scroll-behavior="smooth"` to `<html>` alongside `className="scroll-smooth"` |
 | Dropdown unreadable over page content | Use solid `bg-white dark:bg-ink-900` — not semi-transparent — for dropdown menus |
 | `router.push` on forbidden routes causes back-button loops | Always use `router.replace()` for security redirects |
-| `<Header />` used in dashboard but layout has no padding | Add `pt-[72px]` wrapper div in the layout, not each page |
+| Landing anchor links on dashboard headers | Use `<Header variant="app" />` in admin/client/profile layouts with root link `<Link href="/">` |
+| Black line art avatar invisible in dark mode | Add `bg-white` backing to avatar thumbnail containers |
 
 ### 1.12 Decisions Made
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Header } from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import {
@@ -110,7 +111,7 @@ function AvatarUpload({
         <img
           src={preview}
           alt="Avatar"
-          className="w-20 h-20 rounded-full object-cover border-2 border-sage-500 shadow-sm"
+          className="w-20 h-20 rounded-full object-cover border-2 border-sage-500 shadow-sm bg-white"
         />
       ) : (
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-sage-500 to-sage-700 text-white flex items-center justify-center font-display text-2xl font-semibold shadow-sm select-none">
@@ -251,36 +252,10 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute redirectTo="/auth/login">
       <div className="min-h-screen bg-ivory-50 dark:bg-[#0d1416] text-ink-900 dark:text-ivory-100 font-sans antialiased">
-        {/* Header Bar */}
-        <header className="border-b border-sage-200/60 dark:border-white/5 bg-ivory-100/80 dark:bg-[#111a1c]/80 backdrop-blur-md sticky top-0 z-40">
-          <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/"
-                className="font-display text-xl tracking-wide text-ink-900 dark:text-white hover:opacity-90"
-              >
-                Yoga Córdoba
-              </Link>
-              <span className="text-zinc-400 dark:text-zinc-600">/</span>
-              <span className="text-xs uppercase tracking-wider text-sage-600 dark:text-sage-400 font-semibold">
-                Mi Perfil
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Link
-                href={dashboardHref}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-sage-300 dark:border-white/10 hover:bg-sage-100 dark:hover:bg-white/5 text-xs text-ink-700 dark:text-zinc-300 transition-colors"
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Panel</span>
-              </Link>
-            </div>
-          </div>
-        </header>
+        <Header variant="app" />
 
         {/* Main Content */}
-        <main className="max-w-5xl mx-auto px-6 py-10">
+        <main className="max-w-5xl mx-auto px-6 py-10 pt-[96px]">
           {/* Back link */}
           <div className="mb-6">
             <Link

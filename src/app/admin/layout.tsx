@@ -14,8 +14,8 @@ export default function AdminLayout({
       redirectTo="/auth/login"
       forbiddenRedirectTo="/unauthorized"
     >
-      <Header />
-      <div className="pt-[72px]">{children}</div>
+      <Header variant="app" />
+      <div className="pt-[68px]">{children}</div>
     </ProtectedRoute>
   );
 }

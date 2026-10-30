@@ -23,8 +23,8 @@ export default function ClientLayout({
 
   return (
     <ProtectedRoute allowedRoles={["user", "client"]} redirectTo="/auth/login">
-      <Header />
-      <div className="pt-[72px]">{children}</div>
+      <Header variant="app" />
+      <div className="pt-[68px]">{children}</div>
     </ProtectedRoute>
   );
 }

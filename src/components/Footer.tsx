@@ -3,6 +3,7 @@
 import { MapPin } from 'lucide-react';
 import { FOOTER, NAV_LINKS, CONTACT } from '@/data/content';
 import { useLang } from '@/context/PrefContext';
+import { Logo } from '@/components/Logo';
 
 export function Footer() {
   const lang = useLang();
@@ -19,7 +20,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-3 lg:gap-12">
           {/* Brand + tagline */}
           <div>
-            <img src="/logo.svg" alt={t.brand} className="h-14 w-auto" />
+            <Logo inverted={true} className="h-14 w-auto" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ivory-200/50">
               {t.tagline}
             </p>
