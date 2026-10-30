@@ -8,7 +8,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={["admin"]} redirectTo="/auth/login">
+    <ProtectedRoute
+      allowedRoles={["admin"]}
+      redirectTo="/auth/login"
+      forbiddenRedirectTo="/unauthorized"
+    >
       {children}
     </ProtectedRoute>
   );

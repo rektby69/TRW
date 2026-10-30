@@ -9,12 +9,14 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
   redirectTo?: string;
+  forbiddenRedirectTo?: string;
 }
 
 export function ProtectedRoute({
   children,
   allowedRoles,
   redirectTo = "/auth/login",
+  forbiddenRedirectTo = "/unauthorized",
 }: ProtectedRouteProps) {
   const { user, role, isLoading } = useAuth();
   const router = useRouter();
@@ -23,21 +25,16 @@ export function ProtectedRoute({
     if (isLoading) return;
 
     if (!user) {
-      router.push(redirectTo);
+      router.replace(redirectTo);
       return;
     }
 
     if (allowedRoles && allowedRoles.length > 0 && role) {
       if (!allowedRoles.includes(role)) {
-        // Redirect to appropriate landing based on their actual role
-        if (role === "admin") {
-          router.push("/admin/dashboard");
-        } else {
-          router.push("/client/dashboard");
-        }
+        router.replace(forbiddenRedirectTo);
       }
     }
-  }, [user, role, isLoading, allowedRoles, redirectTo, router]);
+  }, [user, role, isLoading, allowedRoles, redirectTo, forbiddenRedirectTo, router]);
 
   if (isLoading) {
     return (
