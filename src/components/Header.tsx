@@ -128,8 +128,8 @@ export function Header() {
                 className={cn(
                   'flex items-center gap-2 rounded-full p-1 pl-1.5 pr-3 text-xs font-semibold transition-all active:scale-[0.97]',
                   scrolled
-                    ? 'border border-sage-300 bg-white/80 text-ink-800 hover:bg-sage-50 dark:border-ink-700 dark:bg-ink-850 dark:text-ivory-100 dark:hover:bg-ink-800'
-                    : 'border border-ivory-100/30 bg-ink-950/30 text-white backdrop-blur-sm hover:bg-ink-950/40',
+                    ? 'border border-sage-300 bg-white/80 text-ink-800 hover:bg-sage-50 dark:border-ink-700 dark:bg-ink-800 dark:text-ivory-100 dark:hover:bg-ink-700'
+                    : 'border border-ivory-100/40 bg-ink-950/40 text-ivory-50 backdrop-blur-sm hover:bg-ink-950/60',
                 )}
               >
                 {/* Profile Picture or Placeholder */}

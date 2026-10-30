@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import type { Database } from "@/types/database";
 import {
   User,
   Mail,
@@ -19,11 +18,144 @@ import {
   AlertCircle,
   ArrowLeft,
   LayoutDashboard,
+  Camera,
+  Loader2,
 } from "lucide-react";
 
+// ─── Avatar Upload Component ──────────────────────────────────────────────────
+
+function AvatarUpload({
+  userId,
+  currentUrl,
+  initials,
+  onUploaded,
+}: {
+  userId: string;
+  currentUrl: string | null | undefined;
+  initials: string;
+  onUploaded: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(currentUrl ?? null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Keep preview in sync if the URL changes from outside (e.g. after refreshProfile)
+  useEffect(() => {
+    setPreview(currentUrl ?? null);
+  }, [currentUrl]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Client-side validation
+    const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!ALLOWED.includes(file.type)) {
+      setError("Formato no permitido. Usa JPG, PNG, WEBP o GIF.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("La imagen no puede superar 2 MB.");
+      return;
+    }
+
+    setError(null);
+    setUploading(true);
+
+    // Show local preview immediately
+    const localUrl = URL.createObjectURL(file);
+    setPreview(localUrl);
+
+    try {
+      // Path: avatars/<userId>/avatar.<ext>
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const filePath = `${userId}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true, contentType: file.type });
+
+      if (uploadError) throw uploadError;
+
+      // Get a signed URL (valid 10 years — avatars are private bucket)
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 10); // 10 years
+
+      if (signedError || !signedData?.signedUrl) throw signedError ?? new Error("No signed URL");
+
+      // Persist the signed URL on the profile row
+      const { error: updateError } = await (supabase.from("profiles") as any)
+        .update({ avatar_url: signedData.signedUrl, updated_at: new Date().toISOString() })
+        .eq("id", userId);
+
+      if (updateError) throw updateError;
+
+      onUploaded(signedData.signedUrl);
+    } catch (err: any) {
+      setError(err.message ?? "Error al subir la imagen.");
+      setPreview(currentUrl ?? null); // revert preview on failure
+    } finally {
+      setUploading(false);
+      // Reset input so the same file can be re-selected after an error
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="relative group w-20 h-20 shrink-0">
+      {/* Avatar display */}
+      {preview ? (
+        <img
+          src={preview}
+          alt="Avatar"
+          className="w-20 h-20 rounded-full object-cover border-2 border-sage-500 shadow-sm"
+        />
+      ) : (
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-sage-500 to-sage-700 text-white flex items-center justify-center font-display text-2xl font-semibold shadow-sm select-none">
+          {initials}
+        </div>
+      )}
+
+      {/* Camera overlay button */}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        aria-label="Cambiar foto de perfil"
+        className="absolute inset-0 rounded-full flex items-center justify-center bg-ink-950/50 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer"
+      >
+        {uploading ? (
+          <Loader2 className="w-6 h-6 text-white animate-spin" />
+        ) : (
+          <Camera className="w-6 h-6 text-white" />
+        )}
+      </button>
+
+      {/* Hidden file input */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="sr-only"
+        onChange={handleFileChange}
+      />
+
+      {/* Inline error tooltip */}
+      {error && (
+        <p className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 w-48 text-center text-[10px] text-clay-700 dark:text-clay-300 bg-clay-500/10 border border-clay-500/20 rounded-lg px-2 py-1 z-10">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── Profile Page ─────────────────────────────────────────────────────────────
+
 export default function ProfilePage() {
-  const router = useRouter();
-  const { user, profile, role, refreshProfile, signOut } = useAuth();
+  const { user, profile, role, refreshProfile } = useAuth();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -40,9 +172,7 @@ export default function ProfilePage() {
   const [healthNotes, setHealthNotes] = useState("");
 
   const [isSaving, setIsSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
-    null
-  );
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -113,7 +243,7 @@ export default function ProfilePage() {
     if (profile?.full_name) {
       return profile.full_name.substring(0, 2).toUpperCase();
     }
-    return user?.email?.substring(0, 2).toUpperCase() || "YC";
+    return user?.email?.substring(0, 2).toUpperCase() ?? "YC";
   };
 
   const dashboardHref = role === "admin" ? "/admin/dashboard" : "/client/dashboard";
@@ -166,17 +296,16 @@ export default function ProfilePage() {
           <div className="rounded-3xl border border-sage-200/60 dark:border-white/5 bg-ivory-100/90 dark:bg-[#141f21] p-6 sm:p-8 mb-8 backdrop-blur-md shadow-sm">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
               <div className="flex items-center gap-5">
-                {/* Avatar with fallback placeholder */}
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt={profile.full_name || "Avatar"}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-sage-500 shadow-sm"
+                {/* Avatar — clickable to upload */}
+                {user && (
+                  <AvatarUpload
+                    userId={user.id}
+                    currentUrl={profile?.avatar_url}
+                    initials={getInitials()}
+                    onUploaded={async () => {
+                      await refreshProfile();
+                    }}
                   />
-                ) : (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-sage-500 to-sage-700 text-white flex items-center justify-center font-display text-2xl font-semibold shadow-sm">
-                    {getInitials()}
-                  </div>
                 )}
 
                 <div>
@@ -193,6 +322,9 @@ export default function ProfilePage() {
                       {profile?.status || "active"}
                     </span>
                   </div>
+                  <p className="mt-2 text-[10px] text-ink-400 dark:text-zinc-500">
+                    Haz clic en la foto para cambiarla (JPG, PNG, WEBP · máx. 2 MB)
+                  </p>
                 </div>
               </div>
             </div>
