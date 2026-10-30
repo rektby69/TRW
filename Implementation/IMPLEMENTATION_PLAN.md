@@ -611,10 +611,10 @@ gantt
 This phase establishes the foundational Supabase database architecture with all required tables and enums first, implements the signup and login pages, sets up user role handling (with support for manual admin elevation in Supabase), and builds mockup admin and user dashboards to immediately test the authentication lifecycle and role-based access.
 
 #### 1. Supabase Setup & Full Database Migration
-- [ ] **Client & Environment Verification**:
+- [x] **Client & Environment Verification**:
   - Verify `@supabase/supabase-js` installation and configure `src/lib/supabase.ts`.
   - Validate environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
-- [ ] **Database Schema & Table Creation**:
+- [x] **Database Schema & Table Creation**:
   - Create all enums: `user_role` (`user`, `client`, `admin`), `user_status` (`active`, `banned`, `rejected`), `booking_status`, `payment_status`, `session_status`, `recurrence_type`.
   - Create all core tables with constraints:
     - `profiles` (`id`, `first_name`, `last_name`, `phone_number`, `role`, `status`, etc.)
@@ -627,35 +627,36 @@ This phase establishes the foundational Supabase database architecture with all 
     - `user_roles_history`
     - `user_login_history`
     - `audit_logs`
-  - Establish Row Level Security (RLS) policies and triggers (`handle_new_user` profile auto-creation with default `user` role).
+  - Establish Row Level Security (RLS) policies and triggers (`handle_new_user` profile auto-creation with default `user` role, `is_admin()` security definer function preventing recursion).
 
 #### 2. Authentication Flow (Signup & Login Pages)
-- [ ] **Global Auth Context**:
+- [x] **Global Auth Context**:
   - Implement `src/context/AuthContext.tsx` handling session synchronization, profile retrieval, role resolution, and sign-out.
-- [ ] **Signup Page**:
+- [x] **Signup Page**:
   - Build `src/app/auth/signup/page.tsx` with email, password, first name, last name, and phone.
   - Test registration creating a user in Supabase Auth and corresponding `profiles` row.
-- [ ] **Login Page**:
+- [x] **Login Page**:
   - Build `src/app/auth/login/page.tsx` with email/password authentication and error messaging.
 
 #### 3. User Roles & Admin Setup
-- [ ] **Role Resolution & Access Control**:
-  - Implement role helper utilities and Next.js App Router layout guards / middleware for role-based redirects (`user`/`client` vs `admin`).
-- [ ] **Manual Admin Provisioning**:
-  - Provide clear steps / SQL script to manually promote the first account to `admin` in the Supabase console (`UPDATE profiles SET role = 'admin' WHERE email = ...`).
+- [x] **Role Resolution & Access Control**:
+  - Implement role helper utilities and Next.js App Router layout guards (`src/components/auth/ProtectedRoute.tsx`, `src/app/admin/layout.tsx`, `src/app/client/layout.tsx`).
+  - Restrict unauthorized access with dedicated error 403 page (`src/app/unauthorized/page.tsx`).
+- [x] **Manual Admin Provisioning**:
+  - Provide clear steps / SQL script to manually promote the first account to `admin` in the Supabase console (`UPDATE profiles SET role = 'admin' WHERE id = ...`).
 
 #### 4. Mockup Admin & User Dashboards (Testing Shells)
-- [ ] **Mockup User / Client Dashboard**:
-  - Create `/client/dashboard` (or `/(dashboard)/user/page.tsx`):
+- [x] **Mockup User / Client Dashboard**:
+  - Create `/client/dashboard`:
     - Display current user profile details, active role badge (`user` or `client`), and quick logout.
-    - Placeholder booking card to verify view rendering for authenticated users.
-- [ ] **Mockup Admin Dashboard**:
+    - Information panels for in-person payments (`pending_on_premise`) and schedule links.
+- [x] **Mockup Admin Dashboard**:
   - Create `/admin/dashboard`:
-    - Display admin identity, role guard confirmation, and overview cards (Total Yogis, Today's Classes, Studio Stats placeholders).
-    - Quick role verification panel to ensure non-admins cannot access this route.
-- [ ] **End-to-End Verification**:
+    - Display admin identity, role guard confirmation, and real live database KPIs (Revenue, Clients, Sessions, Pending).
+    - Recent bookings list and live operational system logs.
+- [x] **End-to-End Verification**:
   - Sign up a new user -> Verify they land on User Dashboard with `user` role.
-  - Attempt accessing `/admin/dashboard` as regular user -> Verify access denied / redirect.
+  - Attempt accessing `/admin/dashboard` as regular user -> Verify redirected to `/unauthorized`.
   - Manually elevate to `admin` in Supabase -> Log in as admin -> Verify direct access to Admin Dashboard.
 
 ---
