@@ -1,165 +1,177 @@
-# Reusable App Blueprint & Engineering Playbook (SKILL_BUILDING)
+# SKILL_BUILDING — Engineering Playbook (TRW / Yoga Córdoba)
 
-> **Purpose**: This document captures the battle-tested architectural patterns, execution sequence, security guardrails, and lessons learned from building the **Yoga Córdoba (TRW)** backend and dashboards.
-> 
-> When starting any new project or web application with an AI agent (or pair programmer), you can feed or reference this file. The agent will read this playbook, understand the exact sequence of steps, and apply the same high standard without repeating past mistakes.
-
----
-
-## 1. How Professional Teams & AI Agents Manage Reusability
-
-When scaling across multiple projects, leading engineering teams use a **layered playbook system**:
-1. **The Project Blueprint (`SKILL_BUILDING.md` / `ARCHITECTURE_PLAYBOOK.md`)**: A high-level playbook in the repo outlining architecture rules, security invariants, and step-by-step lifecycles.
-2. **The Execution Plan (`IMPLEMENTATION_PLAN.md`)**: A living, checklist-based roadmap specific to the app's domain and roadmap phases.
-3. **The Issues / PR Protocol (`GITHUB_ISSUES_GUIDE.md`)**: Standardized branch, commit, and tracking practices for AI agents so no untracked work occurs.
-4. **Agent Skill / Rules**: When using tools like Antigravity, Cursor, or Claude Code, rules or skills can point to this document so the AI automatically adopts these habits at kickoff.
+> **What this is**: A living log of every phase completed on this project — architectural decisions, security lessons, and exact patterns used. Feed this file to an AI agent at the start of any new project and say:
+>
+> *"Read `SKILL_BUILDING.md`. Use its lifecycle, security invariants, and conventions as the baseline for this new project. Start with Step 1: create the tracking issue and the implementation plan before writing any code."*
 
 ---
 
-## 2. Standard End-to-End Project Lifecycle
+## How this file works
 
-Whenever starting a new greenfield or transitional project, follow this exact sequence:
+- One section per phase, added as phases complete.
+- Each section: what was built, key decisions, gotchas/fixes, reusable patterns.
+- Keep it short. No theory — only things that were actually done and learned.
 
-```mermaid
-flowchart TD
-    Step1[1. Context, Tech Stack & Git Setup] --> Step2[2. Master Implementation Plan & Tracking Issue]
-    Step2 --> Step3[3. Database Architecture & RLS Migration]
-    Step3 --> Step4[4. Typed Client & Auth Context]
-    Step4 --> Step5[5. Route Protection & Multi-Role Guards]
-    Step5 --> Step6[6. Auth UI & Test Shells]
-    Step6 --> Step7[7. Domain Logic, Booking & In-Person Payments]
-    Step7 --> Step8[8. Operational Management & Hardening]
+---
+
+## Phase 1 — Foundation, Auth & Dashboards ✅
+
+**Stack**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase JS v2, Lucide React, Sentry, Vercel Analytics.
+
+### 1.1 Project Bootstrap Sequence (do this first, every time)
+
+1. Create a GitHub Issue for the work before writing code.
+2. Branch off `main` as `feat/issue-X-short-description`.
+3. Write `IMPLEMENTATION_PLAN.md` with phased checklist before any implementation.
+4. Create `.env.example` documenting every required env var (public vs secret).
+5. Confirm `.gitignore` excludes `.env`, `.env.local`, `.next/`, build artifacts.
+
+### 1.2 Database Architecture (Supabase / PostgreSQL)
+
+**Migration files** under `supabase/migrations/YYYYMMDD_NNNNNN_name.sql`.
+
+**Enums defined** (never use enums for dynamic domain values like class types — use a table instead):
+```sql
+user_role    → 'user' | 'client' | 'admin'
+user_status  → 'active' | 'banned' | 'rejected'
+booking_status, payment_status, session_status, recurrence_type
 ```
 
----
+**Core tables**: `profiles`, `instructors`, `session_types`, `session_templates`, `session_instances`, `bookings`, `user_roles_history`, `user_login_history`, `audit_logs`.
 
-## 3. Step-by-Step Blueprint (Phases & Checklist)
+**Profile auto-creation trigger** (required — runs on every new `auth.users` insert):
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, role, status, full_name)
+  VALUES (NEW.id, 'user', 'active',
+          COALESCE(NEW.raw_user_meta_data->>'full_name', SPLIT_PART(NEW.email, '@', 1)))
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-### Step 1: Foundation & Git Protocol
-- [ ] Define repo owner, branch names, and issue tracking protocol (`feat/issue-X-description`).
-- [ ] Create `.env.example` with clear documentation of required secrets vs public keys.
-- [ ] Ensure `.gitignore` ignores `.env`, `.env.local`, `.next`, and build artifacts.
-- [ ] Create initial tracking issue on GitHub before writing code.
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+```
 
-### Step 2: Architecture & Implementation Plan
-- [ ] Write a comprehensive `IMPLEMENTATION_PLAN.md`:
-  - Executive summary and core tenets (e.g. on-premise payment, role promotion, slug-based routes over modals).
-  - ERD diagram of tables and relationships.
-  - Step-by-step phased roadmap with checkboxes (`- [ ]`).
-  - Strict rule: **Never write code until the roadmap and issue are aligned**.
+**Role promotion trigger**: `user` → `client` automatically on first confirmed booking.
 
-### Step 3: Supabase & Database Architecture
-- [ ] Create dedicated SQL migration file under `supabase/migrations/` (e.g., `YYYYMMDD_000001_initial_schema.sql`).
-- [ ] Define database enums (`user_role`, `user_status`, domain statuses).
-- [ ] Build core tables with sensible defaults and foreign key cascades/restrictions:
-  - `profiles` referencing `auth.users(id)` ON DELETE CASCADE.
-  - Domain tables (e.g. `instructors`, `session_types`, `session_templates`, `session_instances`, `bookings`).
-  - Audit log tables (`user_roles_history`, `user_login_history`, `audit_logs`).
-- [ ] **Crucial Trigger — Profile Auto-Creation**:
-  ```sql
-  CREATE OR REPLACE FUNCTION public.handle_new_user()
-  RETURNS TRIGGER AS $$
-  BEGIN
-    INSERT INTO public.profiles (id, role, status, full_name)
-    VALUES (NEW.id, 'user', 'active', COALESCE(NEW.raw_user_meta_data->>'full_name', SPLIT_PART(NEW.email, '@', 1)))
-    ON CONFLICT (id) DO NOTHING;
-    RETURN NEW;
-  END;
-  $$ LANGUAGE plpgsql SECURITY DEFINER;
-  ```
-- [ ] **Row Level Security (RLS)**:
-  - Enable RLS on all tables (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`).
-  - Read & write policies for individual users (`auth.uid() = id` or `user_id = auth.uid()`).
+**Admin promotion**: manual SQL only — `UPDATE public.profiles SET role = 'admin' WHERE id = '...';`
 
-### Step 4: Security Invariants & Pitfalls Avoided (Critical Lessons)
+### 1.3 Row Level Security (RLS) — Critical Lessons
+
+Enable RLS on every table. Users read/write their own rows via `auth.uid() = id`.
 
 > [!CAUTION]
-> #### Lesson 1: PostgreSQL RLS Infinite Recursion
-> **Mistake**: Writing an admin policy like `EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')` directly on the `profiles` table causes PostgreSQL to evaluate the policy when querying `profiles`, triggering an infinite recursion loop and breaking all profile queries.
-> 
-> **Solution**: Always use a separate `SECURITY DEFINER` helper function with `STABLE`:
+> **Infinite Recursion Trap**: An admin policy like `EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')` placed directly on the `profiles` table causes PostgreSQL to recurse infinitely. The policy queries the table it's protecting.
+>
+> **Fix — always use a `SECURITY DEFINER` helper**:
 > ```sql
 > CREATE OR REPLACE FUNCTION public.is_admin(p_user_id UUID DEFAULT auth.uid())
 > RETURNS BOOLEAN AS $$
 > BEGIN
->   RETURN EXISTS (
->     SELECT 1 FROM public.profiles
->     WHERE id = p_user_id AND role = 'admin'
->   );
+>   RETURN EXISTS (SELECT 1 FROM public.profiles WHERE id = p_user_id AND role = 'admin');
 > END;
 > $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
-> 
-> -- Then use it cleanly in policies:
+>
+> -- Then use it in policies:
 > CREATE POLICY "Users read own profile or admin reads all"
 >   ON public.profiles FOR SELECT
 >   USING (auth.uid() = id OR public.is_admin());
 > ```
+> This lives in a separate migration file (`000002_fix_rls_recursion.sql`).
+
+### 1.4 TypeScript Integration
+
+- Full schema types in `src/types/database.ts` — `Row`, `Insert`, `Update` per table plus `Views`, `Functions`, `Enums` sections (all required, even if empty — Supabase generic types break without them).
+- Typed client in `src/lib/supabase.ts`: `createClient<Database>(url, key)`.
+
+### 1.5 Auth Context (`src/context/AuthContext.tsx`)
+
+Wraps the whole app via `src/app/providers.tsx` → `src/app/layout.tsx`.
+
+Exposes: `user`, `session`, `profile`, `role`, `status`, `isAdmin`, `isClient`, `loading`, `signOut()`, `refreshProfile()`.
+
+Listens to `supabase.auth.onAuthStateChange` — always syncs DB profile on every session event.
+
+### 1.6 Route Protection
+
+**`src/components/auth/ProtectedRoute.tsx`** — wraps any page/layout:
+- No session → `router.replace('/auth/login')`
+- Wrong role → `router.replace(forbiddenRedirectTo)` ← **must use `replace`, not `push`**
 
 > [!WARNING]
-> #### Lesson 2: Next.js Navigation History Trapping
-> **Mistake**: Using `router.push('/unauthorized')` when a user lacks permissions traps the user in a back-button loop. Clicking "back" in the browser lands on the forbidden route, which pushes `/unauthorized` again.
-> 
-> **Solution**: Always use `router.replace(forbiddenRedirectTo)` for security redirects so the forbidden page is never pushed onto the browser history stack.
+> **`router.push` creates back-button loops on forbidden routes.** Always use `router.replace()` for security redirects so the forbidden URL is never in history.
 
-> [!NOTE]
-> #### Lesson 3: Next.js Smooth Scrolling Attribute
-> When using `scroll-smooth` on `<html>`, Next.js route transitions can slide slowly or jitter. Always add `data-scroll-behavior="smooth"` to the `<html>` element in Next.js App Router:
-> ```tsx
-> <html lang="es" className="scroll-smooth" data-scroll-behavior="smooth">
-> ```
+**Admin layout** (`src/app/admin/layout.tsx`): only `admin` role, others → `/unauthorized`.  
+**Client layout** (`src/app/client/layout.tsx`): only `user`/`client`, admins → `/admin/dashboard`.
 
-### Step 5: Frontend Auth Context & Route Guards
-- [ ] **Typed Database**:
-  - Export full schema interfaces in `src/types/database.ts` representing `Row`, `Insert`, and `Update` types.
-  - Instantiate typed client in `src/lib/supabase.ts`: `createClient<Database>(url, key)`.
-- [ ] **Global Auth Context** (`src/context/AuthContext.tsx`):
-  - Listens to `supabase.auth.onAuthStateChange`.
-  - Resolves `user`, `session`, `profile`, `role`, `status`, and helper flags (`isAdmin`, `isClient`).
-  - Provides a `refreshProfile()` helper so edits immediately propagate across the app.
-- [ ] **Protected Route Guard** (`src/components/auth/ProtectedRoute.tsx`):
-  - If unauthenticated $\rightarrow$ `router.replace('/auth/login')`.
-  - If role not in `allowedRoles` $\rightarrow$ `router.replace('/unauthorized')`.
-  - Role-specific layouts (`src/app/admin/layout.tsx` for admin, `src/app/client/layout.tsx` for students).
+### 1.7 Pages Built
 
-### Step 6: Core User & Admin Dashboards (MVP Shells)
-- [ ] **User Dashboard (`/client/dashboard`)**:
-  - Displays user profile status, current role (`user` vs `client`), and quick action buttons.
-  - Automatic redirect: If an `admin` user navigates to `/client/*`, they are redirected to `/admin/dashboard`.
-- [ ] **Admin Control Center (`/admin/dashboard`)**:
-  - Operational banner with active status indicator and identity.
-  - Live database KPIs (Total Revenue, New Clients, Active Sessions, Pending Requests).
-  - Recent bookings list and live terminal system logs.
-- [ ] **Unauthorized 403 Page (`/unauthorized`)**:
-  - Clean error page explaining insufficient permissions with links to `/client/dashboard` or `/`.
+| Route | Role | Description |
+|---|---|---|
+| `/auth/login` | public | Email/password login, role-based redirect post-login |
+| `/auth/signup` | public | Email/password signup with name + phone metadata |
+| `/admin/dashboard` | admin | KPIs (revenue, clients, sessions, pending), bookings, system logs |
+| `/client/dashboard` | user/client | Profile snapshot, role badge, booking info |
+| `/profile` | all authenticated | Universal: personal info, address, emergency/health, live save |
+| `/unauthorized` | public | 403 page with links to dashboard and home |
 
-### Step 7: Universal Profile Page & Header Avatar Dropdown
-- [ ] **Universal Profile Page (`/profile`)**:
-  - Accessible to all authenticated users (`user`, `client`, `admin`).
-  - Personal info (name, email, international phone).
-  - Address fields (lines 1 & 2, postal code, city, province, country).
-  - Health & emergency contacts (crucial for studios, gyms, or healthcare apps).
-  - Live save with `refreshProfile()`.
-- [ ] **Header User Dropdown**:
-  - Logged out: Clean "Log in" button.
-  - Logged in: Avatar pill with user image or initials placeholder (e.g., `EG`).
-  - Dropdown menu with outside-click dismissal:
-    - User identity & role badge.
-    - Profile link (`/profile`).
-    - Dashboard link (dynamically points to `/admin/dashboard` or `/client/dashboard`).
-    - Clean Sign Out button.
+### 1.8 Header Avatar Dropdown (`src/components/Header.tsx`)
+
+- **Guest**: "Log in" button.
+- **Authenticated**: Avatar pill — profile picture or initials fallback (e.g. `EG`).
+- Dropdown (outside-click dismissal): identity + role badge, Profile link, Dashboard link, Sign Out.
+- Dashboard link is dynamic: `/admin/dashboard` for admin, `/client/dashboard` for others.
+
+### 1.9 Quirks & Environment Notes
+
+| Issue | Fix |
+|---|---|
+| Turbopack build fails (Sentry + instrumentation) | Always build with `npx next build --webpack` |
+| `NEXT_PUBLIC_SUPABASE_URL` pointing to dead project | Update `.env` — URL and anon key must be from the **same** Supabase project |
+| TypeScript `Argument of type ... not assignable to 'never'` on Supabase update | Add `Views`, `Functions`, `Enums` sections to `Database` interface (can be empty, but must exist) |
+| `PrefContext` has no exported Provider component | Use `PrefContext.Provider` directly in `src/app/page.tsx`; do not import `PrefProvider` |
+| Smooth scroll jitter on Next.js route transitions | Add `data-scroll-behavior="smooth"` to `<html>` alongside `className="scroll-smooth"` |
+
+### 1.10 Decisions Made
+
+- **On-premise payments only** — no Stripe, no online checkout. Payment statuses: `pending_on_premise`, `paid_on_premise`, `waived`, `refunded`.
+- **Slug-based routes over modals** — modals only for confirmations. All forms = dedicated page routes.
+- **Spanish UI copy** with `lang === 'es'` toggle; brand palette: `ivory`, `ink`, `sage`, `clay`.
+- **Anon key (publishable)** is safe in the browser as long as RLS is enabled and configured. Do not use the service role key on the client.
 
 ---
 
-## 4. How to Prompt an AI Agent on a New Project Using this File
+## Phase 2 — Design System, Layouts & Toasts 🔲
 
-When you begin your next app, start your prompt like this:
+> *To be logged when Phase 2 is complete.*
 
-> *"Hello! We are starting a new application. Please inspect `Implementation/SKILL_BUILDING.md` in this repository and adhere strictly to its execution lifecycle, security invariants, and coding standards. 
-> Let's begin with Step 1 and Step 2: setting up the tracking issue, verifying context, and generating our master implementation plan before writing any code."*
+Planned: Sonner toasts (top-right), Radix UI primitives, shared layout components, design token audit.
 
-This guarantees that:
-1. The AI builds a clear implementation plan first.
-2. The database is designed with proper enums, auto-triggers, and non-recursive RLS security.
-3. The authentication context, role guards, and profile management follow this exact verified pattern.
-4. Checklists are kept up-to-date at every milestone.
+---
 
+## Phase 3 — Session Management & Scheduling 🔲
+
+> *To be logged when Phase 3 is complete.*
+
+Planned: Session types, templates, instances, instructor assignment, recurrence logic.
+
+---
+
+## Phase 4 — Booking Flow & Client Area 🔲
+
+> *To be logged when Phase 4 is complete.*
+
+Planned: Booking creation, waitlist, cancellations, client booking history.
+
+---
+
+## Phase 5 — Admin Operations & Reporting 🔲
+
+> *To be logged when Phase 5 is complete.*
+
+Planned: Payment tracking, occupancy reports, user management, audit log viewer.
