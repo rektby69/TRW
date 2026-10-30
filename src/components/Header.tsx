@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Menu, X, Sun, Moon, Globe } from 'lucide-react';
+import Link from 'next/link';
+import { Menu, X, Sun, Moon, Globe, User } from 'lucide-react';
 import { NAV_LINKS, UI } from '@/data/content';
 import { usePref } from '@/context/PrefContext';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/utils/cn';
 
 export function Header() {
   const { lang, theme, toggleLang, toggleTheme } = usePref();
+  const { user, role } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const links = NAV_LINKS[lang];
@@ -76,7 +79,7 @@ export function Header() {
           <a
             href="#horarios"
             className={cn(
-            'hidden rounded-full px-6 py-2.5 text-sm font-semibold shadow-sm transition-all active:scale-[0.97] md:inline-flex',
+            'hidden rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition-all active:scale-[0.97] md:inline-flex',
             scrolled
               ? 'bg-sage-600 text-white shadow-sage-900/20 hover:bg-sage-700 hover:shadow-md'
               : 'bg-ivory-50/15 text-white ring-1 ring-ivory-100/40 backdrop-blur-sm hover:bg-ivory-50/25',
@@ -84,6 +87,34 @@ export function Header() {
           >
             {lang === 'es' ? 'Ver horarios' : 'View schedule'}
           </a>
+
+          {user ? (
+            <Link
+              href={role === 'admin' ? '/admin/dashboard' : '/client/dashboard'}
+              className={cn(
+                'hidden items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] md:inline-flex',
+                scrolled
+                  ? 'border border-sage-300 bg-sage-50/80 text-sage-800 hover:bg-sage-100 dark:border-ink-700 dark:bg-ink-800/80 dark:text-ivory-100 dark:hover:bg-ink-700'
+                  : 'border border-ivory-100/30 bg-ink-950/20 text-white backdrop-blur-sm hover:bg-ink-950/30',
+              )}
+            >
+              <User className="h-4 w-4" />
+              <span>{role === 'admin' ? 'Admin' : lang === 'es' ? 'Mi Área' : 'My Area'}</span>
+            </Link>
+          ) : (
+            <Link
+              href="/auth/login"
+              className={cn(
+                'hidden items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] md:inline-flex',
+                scrolled
+                  ? 'border border-sage-300 text-ink-700 hover:bg-sage-50 dark:border-ink-700 dark:text-ivory-200 dark:hover:bg-ink-800'
+                  : 'border border-ivory-100/30 text-white backdrop-blur-sm hover:bg-ivory-50/15',
+              )}
+            >
+              <User className="h-4 w-4" />
+              <span>{lang === 'es' ? 'Iniciar sesión' : 'Log in'}</span>
+            </Link>
+          )}
           <button
             type="button"
             aria-label="Open menu"
@@ -117,7 +148,7 @@ export function Header() {
               </a>
             </li>
           ))}
-          <li className="pt-4">
+          <li className="pt-4 flex flex-col gap-2.5">
             <a
               href="#horarios"
               onClick={() => setOpen(false)}
@@ -125,6 +156,25 @@ export function Header() {
             >
               {lang === 'es' ? 'Ver horarios' : 'View schedule'}
             </a>
+            {user ? (
+              <Link
+                href={role === 'admin' ? '/admin/dashboard' : '/client/dashboard'}
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-full border border-sage-300 dark:border-ink-700 bg-sage-50 dark:bg-ink-800 px-6 py-3 text-center text-sm font-semibold text-ink-800 dark:text-ivory-100"
+              >
+                <User className="h-4 w-4" />
+                <span>{role === 'admin' ? 'Panel Admin' : lang === 'es' ? 'Mi Área' : 'My Area'}</span>
+              </Link>
+            ) : (
+              <Link
+                href="/auth/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-full border border-sage-300 dark:border-ink-700 px-6 py-3 text-center text-sm font-semibold text-ink-700 dark:text-ivory-200 hover:bg-sage-50 dark:hover:bg-ink-800"
+              >
+                <User className="h-4 w-4" />
+                <span>{lang === 'es' ? 'Iniciar sesión' : 'Log in'}</span>
+              </Link>
+            )}
           </li>
         </ul>
       </div>

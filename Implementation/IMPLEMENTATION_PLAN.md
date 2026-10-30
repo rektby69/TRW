@@ -583,69 +583,80 @@ The new backend and dashboard interfaces must feel seamless and harmonious with 
 gantt
     title Yoga Córdoba Backend & Dashboards Implementation
     dateFormat  YYYY-MM-DD
-    section Phase 1: Authentication & User Profiles
-    Project Infrastructure             :p1_1, 2026-10-30, 1d
-    Authentication Flow                :p1_2, after p1_1, 2d
-    Profile Management & Database      :p1_3, after p1_2, 2d
-    UI Shell (Responsive Sidebars)     :p1_4, after p1_3, 2d
-    Metadata & SEO                     :p1_5, after p1_4, 1d
+    section Phase 1: Database, Auth & Role Foundations
+    Supabase Schema & All Tables       :p1_1, 2026-10-30, 2d
+    Signup & Login Pages               :p1_2, after p1_1, 2d
+    Role Logic & Manual Admin Flow     :p1_3, after p1_2, 1d
+    Mockup Admin & User Dashboards     :p1_4, after p1_3, 2d
     section Phase 2: Design System & Shared Primitives
-    Design Tokens & Top-Right Toasts   :p2_1, after p1_5, 2d
-    Shared Components & Tables         :p2_2, after p2_1, 2d
+    Design Tokens & Top-Right Toasts   :p2_1, after p1_4, 2d
+    Shared UI Components & Modals      :p2_2, after p2_1, 2d
     section Phase 3: Client Experience & Booking Engine
     Class Timetable & Slot Window      :p3_1, after p2_2, 2d
     Atomic Booking Flow                :p3_2, after p3_1, 2d
-    Client Dashboard & My Bookings     :p3_3, after p3_2, 2d
-    section Phase 4: Admin Operational Management
-    Admin Dashboard & Daily Roster     :p4_1, after p3_3, 2d
+    Full Client Bookings Management    :p3_3, after p3_2, 2d
+    section Phase 4: Admin Operational Management Suite
+    Admin Daily Roster & Stats         :p4_1, after p3_3, 2d
     Sessions & Templates CRUD (Slugs)  :p4_2, after p4_1, 3d
     Attendance & In-Person Payments    :p4_3, after p4_2, 2d
-    Clients Directory & Access Control :p4_4, after p4_3, 2d
+    Clients Directory & Ban Control    :p4_4, after p4_3, 2d
     Reporting & Studio Settings        :p4_5, after p4_4, 2d
     section Phase 5: Verification & Quality Assurance
     Auditing, Edge Cases & Sentry      :p5_1, after p4_5, 3d
 ```
 
-### Phase 1: Authentication & User Profiles — Implementation Plan
+### Phase 1: Database Setup, Auth & Mockup Dashboards
 
 #### Overview
-This phase establishes the foundational project infrastructure for the backend transition. We will integrate Supabase, set up authentication, and create the core dashboard layout.
+This phase establishes the foundational Supabase database architecture with all required tables and enums first, implements the signup and login pages, sets up user role handling (with support for manual admin elevation in Supabase), and builds mockup admin and user dashboards to immediately test the authentication lifecycle and role-based access.
 
-#### 1. Project Infrastructure
-- [ ] **Supabase Initialization**:
-  - Ensure `@supabase/supabase-js` is installed.
-  - Create/verify `src/lib/supabase.ts` for the client instance.
-  - Verify environment variables in `.env` (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and compatibility with `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+#### 1. Supabase Setup & Full Database Migration
+- [ ] **Client & Environment Verification**:
+  - Verify `@supabase/supabase-js` installation and configure `src/lib/supabase.ts`.
+  - Validate environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+- [ ] **Database Schema & Table Creation**:
+  - Create all enums: `user_role` (`user`, `client`, `admin`), `user_status` (`active`, `banned`, `rejected`), `booking_status`, `payment_status`, `session_status`, `recurrence_type`.
+  - Create all core tables with constraints:
+    - `profiles` (`id`, `first_name`, `last_name`, `phone_number`, `role`, `status`, etc.)
+    - `instructors`
+    - `session_types`
+    - `session_templates`
+    - `session_instances`
+    - `bookings`
+    - `calendar_exceptions`
+    - `user_roles_history`
+    - `user_login_history`
+    - `audit_logs`
+  - Establish Row Level Security (RLS) policies and triggers (`handle_new_user` profile auto-creation with default `user` role).
 
-#### 2. Authentication Flow
-- [ ] **Auth Context**:
-  - Create an `AuthContext` (`src/context/AuthContext.tsx`) to manage the session state globally.
-- [ ] **Login Page**:
-  - Create `src/app/auth/login/page.tsx` (and `src/pages/auth/Login.tsx` / redirect).
-  - Implement email/password login.
+#### 2. Authentication Flow (Signup & Login Pages)
+- [ ] **Global Auth Context**:
+  - Implement `src/context/AuthContext.tsx` handling session synchronization, profile retrieval, role resolution, and sign-out.
 - [ ] **Signup Page**:
-  - Create `src/app/auth/signup/page.tsx` (and `src/pages/auth/Signup.tsx` / redirect).
-  - Implement email/password registration.
-- [ ] **Protected Routes**:
-  - Implement a protected route wrapper / layout guard for dashboard pages (`src/app/admin/layout.tsx`, `src/app/client/layout.tsx`, `src/app/(protected)/layout.tsx`).
+  - Build `src/app/auth/signup/page.tsx` with email, password, first name, last name, and phone.
+  - Test registration creating a user in Supabase Auth and corresponding `profiles` row.
+- [ ] **Login Page**:
+  - Build `src/app/auth/login/page.tsx` with email/password authentication and error messaging.
 
-#### 3. Profile Management
-- [ ] **Database Migration**:
-  - Create a migration to ensure the `profiles` table exists with fields: `id`, `first_name`, `last_name`, `phone_number`, `address_line1`, `address_line2`, `post_code`, `city`, `role`, `status`, `emergency_contact_name`, `emergency_contact_phone`, `notes`, `created_at`, `updated_at`.
-- [ ] **Role Trigger**:
-  - Create a Supabase function and trigger to automatically create a profile entry for new users with the `user` role (`handle_new_user`).
+#### 3. User Roles & Admin Setup
+- [ ] **Role Resolution & Access Control**:
+  - Implement role helper utilities and Next.js App Router layout guards / middleware for role-based redirects (`user`/`client` vs `admin`).
+- [ ] **Manual Admin Provisioning**:
+  - Provide clear steps / SQL script to manually promote the first account to `admin` in the Supabase console (`UPDATE profiles SET role = 'admin' WHERE email = ...`).
 
-#### 4. UI Shell
-- [ ] **Dashboard Layout**:
-  - Create `src/components/layout/DashboardLayout.tsx` (and role-specific admin/client shells).
-  - Implement a responsive Sidebar using Shadcn components.
-  - Adhere to the brand guide:
-    - Background: `ivory-50` (`#fbfdfc`) light / `ink-950` (`#111a1c`) dark (or `hsl(220 15% 8%)`)
-    - Primary: `sage-600` (`#37837b`) / `hsl(24 95% 53%)` warm accents
-    - Glassmorphism for sidebars (`backdrop-blur-md bg-ivory-50/90 dark:bg-ink-900/90 border-r border-sage-200/60 dark:border-ink-800`).
-
-#### 5. Metadata & SEO
-- [ ] Ensure proper title tags and meta descriptions for all new auth and dashboard pages.
+#### 4. Mockup Admin & User Dashboards (Testing Shells)
+- [ ] **Mockup User / Client Dashboard**:
+  - Create `/client/dashboard` (or `/(dashboard)/user/page.tsx`):
+    - Display current user profile details, active role badge (`user` or `client`), and quick logout.
+    - Placeholder booking card to verify view rendering for authenticated users.
+- [ ] **Mockup Admin Dashboard**:
+  - Create `/admin/dashboard`:
+    - Display admin identity, role guard confirmation, and overview cards (Total Yogis, Today's Classes, Studio Stats placeholders).
+    - Quick role verification panel to ensure non-admins cannot access this route.
+- [ ] **End-to-End Verification**:
+  - Sign up a new user -> Verify they land on User Dashboard with `user` role.
+  - Attempt accessing `/admin/dashboard` as regular user -> Verify access denied / redirect.
+  - Manually elevate to `admin` in Supabase -> Log in as admin -> Verify direct access to Admin Dashboard.
 
 ---
 
