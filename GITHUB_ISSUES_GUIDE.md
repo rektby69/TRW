@@ -34,8 +34,10 @@ When starting a new session or task, the AI agent must execute this sequence:
 When creating an issue, structure the `body` cleanly with clear acceptance criteria and task checklists:
 
 ```markdown
-### Summary
-Brief description of the problem, feature, or task.
+**Start Datetime**: [ISO Timestamp, e.g., 2026-01-31T15:24:00Z]
+
+### Objective / Summary
+Brief description of what needs to be achieved.
 
 ### Scope & Tasks
 - [ ] Task 1: Specific actionable step
@@ -43,11 +45,11 @@ Brief description of the problem, feature, or task.
 - [ ] Task 3: Unit test or verification step
 
 ### Acceptance Criteria
-- [ ] Expected outcome 1
-- [ ] Expected outcome 2
+- [ ] Criterion 1 (e.g., Page loads without errors)
+- [ ] Criterion 2 (e.g., User can click X)
 
 ### Technical Notes / Implementation Details
-- Relevant files, API schemas, or architectural constraints.
+- [Optional: Brief note on implementation strategy, e.g., "Using generic-ui library", or architectural constraints]
 ```
 
 ---
@@ -83,8 +85,15 @@ The repository has all 10 standard GitHub labels configured:
 
 ---
 
-## 5. In-Flight Updates Protocol
+## 5. Execution Protocol (During Work)
 
+### Branching & Commits
+* **Branching**: Specific branches should be created for the issue.
+  * *Naming Convention*: `feat/issue-ID-short-description` or `fix/issue-ID-short-description` (e.g., `feat/12-add-responsive-header`).
+* **Commits**: All commit messages must reference the issue ID.
+  * *Format*: `[#ISSUE_ID] Commit message` (e.g., `[#12] Add responsive styles to header`).
+
+### In-Flight Updates
 As implementation progresses:
 
 1. **Progress Tracking**:
@@ -95,28 +104,30 @@ As implementation progresses:
 
 ---
 
-## 6. Task Completion & Closing Protocol
+## 6. Task Completion & Closing Protocol (End of Task)
 
 When the requested work is fully tested and finished:
 
-1. **Verify Checklist**:
-   - Ensure all acceptance criteria and task check-boxes in the issue body are marked `[x]`.
-2. **Post Final Summary Comment**:
-   - Add a brief closing comment outlining:
+1. **Verification**:
+   - Ensure all Acceptance Criteria and task checkboxes in the issue body are met and marked `[x]`.
+2. **Closing**:
+   - Close the issue using the GitHub tool (`issue_write` with `state: "closed"`).
+   - *Note*: GitHub automatically records the `closed_at` timestamp.
+   ```json
+   {
+     "method": "update",
+     "owner": "rektby69",
+     "repo": "TRW",
+     "issue_number": <NUM>,
+     "state": "closed",
+     "state_reason": "completed"
+   }
+   ```
+3. **Completion Record & Summary**:
+   - Update the issue body or add a closing comment with the final resolution and finishing time if explicit tracking is needed.
+   - Outline:
      - Files modified/created
      - How the solution was validated or tested
-3. **Close the Issue**:
-   - Call `issue_write` with:
-     ```json
-     {
-       "method": "update",
-       "owner": "rektby69",
-       "repo": "TRW",
-       "issue_number": <NUM>,
-       "state": "closed",
-       "state_reason": "completed"
-     }
-     ```
 4. **Milestone Check**:
    - Check if this closure completes the milestone. If all issues in the milestone are closed, notify the user.
 
