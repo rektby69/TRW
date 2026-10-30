@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Calendar, UserCheck, LogOut, Sparkles, MapPin, ArrowRight } from "lucide-react";
+import { Calendar, UserCheck, LogOut, Sparkles, MapPin, User } from "lucide-react";
 
 export default function ClientDashboardPage() {
   const router = useRouter();
@@ -33,21 +33,34 @@ export default function ClientDashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-semibold text-ink-900 dark:text-ivory-100">
-                {profile?.full_name || user?.email}
-              </p>
-              <p className="text-[10px] text-ink-500 dark:text-ivory-400 capitalize">
-                Rol actual: <span className="font-semibold text-sage-600 dark:text-sage-400">{role}</span>
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            {/* Avatar pill → profile link */}
+            <Link
+              href="/profile"
+              className="flex items-center gap-2 rounded-full border border-sage-300 dark:border-ink-700 bg-white/60 dark:bg-ink-800/60 hover:bg-sage-50 dark:hover:bg-ink-800 px-3 py-1.5 transition-colors"
+              title="Mi Perfil"
+            >
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  className="w-6 h-6 rounded-full object-cover border border-sage-400/40"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-sage-600 flex items-center justify-center text-[10px] font-bold text-white select-none">
+                  {profile?.first_name?.[0] ?? profile?.full_name?.[0] ?? user?.email?.[0] ?? "U"}
+                </div>
+              )}
+              <span className="text-xs font-medium text-ink-700 dark:text-ivory-200 hidden sm:inline max-w-[100px] truncate">
+                {profile?.first_name || profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0]}
+              </span>
+            </Link>
             <button
               onClick={handleSignOut}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-sage-300 dark:border-ink-700 hover:bg-sage-50 dark:hover:bg-ink-800 text-xs text-ink-700 dark:text-ivory-200 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              Cerrar sesión
+              <span className="hidden sm:inline">Cerrar sesión</span>
             </button>
           </div>
         </div>

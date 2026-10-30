@@ -152,7 +152,7 @@ export function Header() {
 
               {/* Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-sage-200/80 dark:border-ink-800 bg-ivory-50/98 dark:bg-ink-900/98 p-1.5 shadow-xl shadow-ink-950/10 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 z-50">
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-sage-200 dark:border-ink-700 bg-white dark:bg-ink-900 p-1.5 shadow-2xl shadow-ink-950/20 animate-in fade-in zoom-in-95 duration-150 z-50">
                   <div className="px-3 py-2 border-b border-sage-200/60 dark:border-ink-800/80 mb-1">
                     <p className="text-xs font-semibold text-ink-900 dark:text-white truncate">
                       {profile?.full_name || user.email?.split('@')[0]}

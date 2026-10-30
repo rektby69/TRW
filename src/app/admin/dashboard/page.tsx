@@ -12,8 +12,8 @@ import {
   Clock,
   LogOut,
   ShieldCheck,
-  Terminal,
   Activity,
+  User,
 } from "lucide-react";
 
 interface AdminStats {
@@ -165,21 +165,34 @@ export default function AdminDashboardPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-medium text-white">
-                {profile?.full_name || user?.email}
-              </p>
-              <p className="text-[10px] text-emerald-400 font-mono">
-                Status: Operational · Role: admin
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            {/* Avatar pill → profile link */}
+            <Link
+              href="/profile"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 transition-colors"
+              title="Mi Perfil"
+            >
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  className="w-6 h-6 rounded-full object-cover border border-sage-500/40"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-sage-600 flex items-center justify-center text-[10px] font-bold text-white select-none">
+                  {profile?.first_name?.[0] ?? profile?.full_name?.[0] ?? user?.email?.[0] ?? "A"}
+                </div>
+              )}
+              <span className="text-xs font-medium text-zinc-300 hidden sm:inline max-w-[100px] truncate">
+                {profile?.first_name || profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0]}
+              </span>
+            </Link>
             <button
               onClick={handleSignOut}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600/90 hover:bg-red-600 text-xs text-white font-medium transition-colors shadow-sm"
             >
               <LogOut className="w-3.5 h-3.5" />
-              Sign Out
+              <span className="hidden sm:inline">Cerrar sesión</span>
             </button>
           </div>
         </div>
