@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Menu, X, Sun, Moon, Globe, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { Menu, X, Sun, Moon, Globe, User, LogOut, LayoutDashboard, ShieldCheck, ChevronDown } from 'lucide-react';
 import { NAV_LINKS, UI } from '@/data/content';
 import { usePref } from '@/context/PrefContext';
 import { useAuth } from '@/context/AuthContext';
@@ -55,6 +55,11 @@ export function Header() {
     return user?.email?.substring(0, 2).toUpperCase() || 'U';
   };
 
+  // Dashboard href + label depending on role
+  const dashboardHref = role === 'admin' ? '/admin/dashboard' : '/client/dashboard';
+  const dashboardLabel = role === 'admin' ? t.adminPanel : t.myDashboard;
+  const DashboardIcon = role === 'admin' ? ShieldCheck : LayoutDashboard;
+
   return (
     <header
       className={cn(
@@ -86,17 +91,20 @@ export function Header() {
         </ul>
 
         <div className="flex items-center gap-1.5">
+          {/* Language toggle */}
           <button
             type="button"
             onClick={toggleLang}
             aria-label="Toggle language"
             className={cn(
-            'grid h-9 w-9 place-items-center rounded-lg transition-colors',
+            'grid h-9 w-9 place-items-center rounded-lg text-xs font-bold transition-colors',
             scrolled ? 'text-sage-800 hover:bg-sage-100 dark:text-ivory-200 dark:hover:bg-ink-800' : 'text-ivory-50 hover:bg-ink-950/20',
           )}
           >
-            <Globe className="h-4.5 w-4.5" />
+            {lang === 'es' ? 'EN' : 'ES'}
           </button>
+
+          {/* Theme toggle */}
           <button
             type="button"
             onClick={toggleTheme}
@@ -108,6 +116,8 @@ export function Header() {
           >
             {theme === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
           </button>
+
+          {/* Schedule CTA */}
           <a
             href="#horarios"
             className={cn(
@@ -117,9 +127,10 @@ export function Header() {
               : 'bg-ivory-50/15 text-white ring-1 ring-ivory-100/40 backdrop-blur-sm hover:bg-ivory-50/25',
           )}
           >
-            {lang === 'es' ? 'Ver horarios' : 'View schedule'}
+            {t.viewSchedule}
           </a>
 
+          {/* ── Authenticated: avatar pill + dropdown ── */}
           {user ? (
             <div className="relative hidden md:block" ref={dropdownRef}>
               <button
@@ -132,7 +143,6 @@ export function Header() {
                     : 'border border-ivory-100/40 bg-ink-950/40 text-ivory-50 backdrop-blur-sm hover:bg-ink-950/60',
                 )}
               >
-                {/* Profile Picture or Placeholder */}
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -153,7 +163,8 @@ export function Header() {
               {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-sage-200 dark:border-ink-700 bg-white dark:bg-ink-900 p-1.5 shadow-2xl shadow-ink-950/20 animate-in fade-in zoom-in-95 duration-150 z-50">
-                  <div className="px-3 py-2 border-b border-sage-200/60 dark:border-ink-800/80 mb-1">
+                  {/* Identity header */}
+                  <div className="px-3 py-2 border-b border-sage-100 dark:border-ink-800 mb-1">
                     <p className="text-xs font-semibold text-ink-900 dark:text-white truncate">
                       {profile?.full_name || user.email?.split('@')[0]}
                     </p>
@@ -163,38 +174,42 @@ export function Header() {
                     </span>
                   </div>
 
+                  {/* Profile */}
                   <Link
                     href="/profile"
                     onClick={() => setDropdownOpen(false)}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink-700 hover:bg-sage-100/80 dark:text-ivory-200 dark:hover:bg-ink-800 transition-colors"
                   >
                     <User className="h-4 w-4 text-sage-600 dark:text-sage-400" />
-                    <span>{lang === 'es' ? 'Mi Perfil' : 'Profile'}</span>
+                    <span>{t.myProfile}</span>
                   </Link>
 
+                  {/* Dashboard — all roles get this, label/icon adapts */}
                   <Link
-                    href={role === 'admin' ? '/admin/dashboard' : '/client/dashboard'}
+                    href={dashboardHref}
                     onClick={() => setDropdownOpen(false)}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink-700 hover:bg-sage-100/80 dark:text-ivory-200 dark:hover:bg-ink-800 transition-colors"
                   >
-                    <LayoutDashboard className="h-4 w-4 text-sage-600 dark:text-sage-400" />
-                    <span>{role === 'admin' ? 'Panel Admin' : lang === 'es' ? 'Mi Panel' : 'Dashboard'}</span>
+                    <DashboardIcon className="h-4 w-4 text-sage-600 dark:text-sage-400" />
+                    <span>{dashboardLabel}</span>
                   </Link>
 
-                  <div className="my-1 border-t border-sage-200/60 dark:border-ink-800/80" />
+                  <div className="my-1 border-t border-sage-100 dark:border-ink-800" />
 
+                  {/* Sign out */}
                   <button
                     type="button"
                     onClick={handleSignOut}
                     className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>{lang === 'es' ? 'Cerrar Sesión' : 'Log Out'}</span>
+                    <span>{t.signOut}</span>
                   </button>
                 </div>
               )}
             </div>
           ) : (
+            /* ── Guest: Log in button ── */
             <Link
               href="/auth/login"
               className={cn(
@@ -205,9 +220,11 @@ export function Header() {
               )}
             >
               <User className="h-4 w-4" />
-              <span>{lang === 'es' ? 'Iniciar sesión' : 'Log in'}</span>
+              <span>{t.logIn}</span>
             </Link>
           )}
+
+          {/* Mobile hamburger */}
           <button
             type="button"
             aria-label="Open menu"
@@ -223,6 +240,7 @@ export function Header() {
         </div>
       </nav>
 
+      {/* ── Mobile drawer ── */}
       <div
         className={cn(
           'overflow-hidden bg-ivory-50/98 dark:bg-ink-900/98 backdrop-blur-xl border-b border-sage-200/60 dark:border-ink-800/80 transition-[max-height,opacity] duration-300 md:hidden',
@@ -247,7 +265,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="block rounded-full bg-sage-600 px-6 py-3 text-center text-sm font-semibold text-white"
             >
-              {lang === 'es' ? 'Ver horarios' : 'View schedule'}
+              {t.viewSchedule}
             </a>
             {user ? (
               <>
@@ -257,15 +275,15 @@ export function Header() {
                   className="flex items-center justify-center gap-2 rounded-full border border-sage-300 dark:border-ink-700 bg-sage-50 dark:bg-ink-800 px-6 py-3 text-center text-sm font-semibold text-ink-800 dark:text-ivory-100"
                 >
                   <User className="h-4 w-4" />
-                  <span>{lang === 'es' ? 'Mi Perfil' : 'Profile'}</span>
+                  <span>{t.myProfile}</span>
                 </Link>
                 <Link
-                  href={role === 'admin' ? '/admin/dashboard' : '/client/dashboard'}
+                  href={dashboardHref}
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-center gap-2 rounded-full border border-sage-200 dark:border-ink-700 px-6 py-2.5 text-center text-xs font-medium text-ink-700 dark:text-ivory-200"
                 >
-                  <LayoutDashboard className="h-4 w-4" />
-                  <span>{role === 'admin' ? 'Panel Admin' : lang === 'es' ? 'Mi Panel' : 'Dashboard'}</span>
+                  <DashboardIcon className="h-4 w-4" />
+                  <span>{dashboardLabel}</span>
                 </Link>
                 <button
                   type="button"
@@ -273,7 +291,7 @@ export function Header() {
                   className="flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-center text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>{lang === 'es' ? 'Cerrar Sesión' : 'Log Out'}</span>
+                  <span>{t.signOut}</span>
                 </button>
               </>
             ) : (
@@ -283,7 +301,7 @@ export function Header() {
                 className="flex items-center justify-center gap-2 rounded-full border border-sage-300 dark:border-ink-700 px-6 py-3 text-center text-sm font-semibold text-ink-700 dark:text-ivory-200 hover:bg-sage-50 dark:hover:bg-ink-800"
               >
                 <User className="h-4 w-4" />
-                <span>{lang === 'es' ? 'Iniciar sesión' : 'Log in'}</span>
+                <span>{t.logIn}</span>
               </Link>
             )}
           </li>

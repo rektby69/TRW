@@ -844,7 +844,41 @@ export const FINAL_CTA: Record<Lang, { title: string; description: string; butto
 
 /* ---------- THEME / LANG TOGGLES ---------- */
 
-export const UI: Record<Lang, { lightMode: string; darkMode: string; spanish: string; english: string }> = {
-  es: { lightMode: 'Modo claro', darkMode: 'Modo oscuro', spanish: 'ES', english: 'EN' },
-  en: { lightMode: 'Light mode', darkMode: 'Dark mode', spanish: 'ES', english: 'EN' },
+export const UI: Record<Lang, {
+  lightMode: string;
+  darkMode: string;
+  spanish: string;
+  english: string;
+  // Header user dropdown
+  myProfile: string;
+  myDashboard: string;
+  adminPanel: string;
+  signOut: string;
+  logIn: string;
+  viewSchedule: string;
+}> = {
+  es: {
+    lightMode: 'Modo claro',
+    darkMode: 'Modo oscuro',
+    spanish: 'ES',
+    english: 'EN',
+    myProfile: 'Mi Perfil',
+    myDashboard: 'Mi Panel',
+    adminPanel: 'Panel Admin',
+    signOut: 'Cerrar Sesión',
+    logIn: 'Iniciar sesión',
+    viewSchedule: 'Ver horarios',
+  },
+  en: {
+    lightMode: 'Light mode',
+    darkMode: 'Dark mode',
+    spanish: 'ES',
+    english: 'EN',
+    myProfile: 'My Profile',
+    myDashboard: 'My Dashboard',
+    adminPanel: 'Admin Panel',
+    signOut: 'Sign Out',
+    logIn: 'Log in',
+    viewSchedule: 'View schedule',
+  },
 };
