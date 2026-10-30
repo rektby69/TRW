@@ -659,6 +659,22 @@ This phase establishes the foundational Supabase database architecture with all 
   - Attempt accessing `/admin/dashboard` as regular user -> Verify redirected to `/unauthorized`.
   - Manually elevate to `admin` in Supabase -> Log in as admin -> Verify direct access to Admin Dashboard.
 
+#### 5. User Profile Management & Header User Menu
+- [x] **Universal User Profile Page**:
+  - Create `/profile` (`src/app/profile/page.tsx`) protected route accessible to any authenticated user (`user`, `client`, or `admin`).
+  - Personal info fields: First name, last name, email (read-only), international phone prefix + number.
+  - Address details: Street address (lines 1 & 2), postal code, city, province/county, country.
+  - Studio & emergency details: Emergency contact name/phone, confidential health & injuries notes for instructors.
+  - Real-time profile state refresh via `AuthContext`.
+- [x] **Root Header User Dropdown**:
+  - Replace direct dashboard button on landing header with standard user avatar pill showing profile picture (or initial placeholder avatar).
+  - Expandable dropdown menu with outside-click dismissal:
+    - User identity & role badge.
+    - **Mi Perfil / Profile** link (`/profile`).
+    - **Panel / Dashboard** link (routes dynamically to `/admin/dashboard` or `/client/dashboard`).
+    - **Cerrar Sesión / Log Out** button.
+  - Responsive mobile drawer support with direct profile and sign-out controls.
+
 ---
 
 ### Phase 2: Design System, Layouts & Top-Right Toasts

@@ -370,6 +370,20 @@ export interface Database {
         };
       };
     };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      user_role: UserRole;
+      user_status: UserStatus;
+      booking_status: BookingStatus;
+      payment_status: PaymentStatus;
+      session_status: SessionStatus;
+      recurrence_type: RecurrenceType;
+    };
   };
 }
 
