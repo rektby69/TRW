@@ -21,6 +21,7 @@ import {
   LayoutDashboard,
   Camera,
   Loader2,
+  X,
 } from "lucide-react";
 
 // ─── Avatar Upload Component ──────────────────────────────────────────────────
@@ -175,6 +176,15 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+  // Auto-dismiss floating toast after 4.5 seconds
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => {
+      setFeedback(null);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
   useEffect(() => {
     if (profile) {
       setFirstName(profile.first_name || "");
@@ -304,24 +314,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          {/* Feedback message */}
-          {feedback && (
-            <div
-              className={`mb-6 p-4 rounded-2xl border flex items-center gap-3 text-xs ${
-                feedback.type === "success"
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300"
-                  : "bg-clay-500/10 border-clay-500/20 text-clay-700 dark:text-clay-300"
-              }`}
-            >
-              {feedback.type === "success" ? (
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-              ) : (
-                <AlertCircle className="w-4 h-4 shrink-0" />
-              )}
-              <span>{feedback.message}</span>
-            </div>
-          )}
 
           {/* Form */}
           <form onSubmit={handleSave} className="space-y-6">
@@ -542,6 +534,49 @@ export default function ProfilePage() {
             </div>
           </form>
         </main>
+
+        {/* Floating Toast Notification */}
+        {feedback && (
+          <aside
+            role="status"
+            aria-live="polite"
+            className={`fixed bottom-6 right-6 z-50 max-w-sm w-[calc(100vw-3rem)] p-4 rounded-2xl border shadow-2xl flex items-center gap-3 backdrop-blur-md animate-fade-up ${
+              feedback.type === "success"
+                ? "bg-white/95 dark:bg-[#141f21]/95 border-emerald-500/30 text-ink-900 dark:text-ivory-100 ring-1 ring-emerald-500/20"
+                : "bg-white/95 dark:bg-[#141f21]/95 border-red-500/30 text-ink-900 dark:text-ivory-100 ring-1 ring-red-500/20"
+            }`}
+          >
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                feedback.type === "success"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : "bg-red-500/10 text-red-600 dark:text-red-400"
+              }`}
+            >
+              {feedback.type === "success" ? (
+                <CheckCircle2 className="w-5 h-5" />
+              ) : (
+                <AlertCircle className="w-5 h-5" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0 pr-1">
+              <p className="text-xs font-semibold text-ink-900 dark:text-white">
+                {feedback.type === "success" ? "Guardado" : "Error al guardar"}
+              </p>
+              <p className="text-xs text-ink-500 dark:text-zinc-400 truncate">
+                {feedback.message}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              aria-label="Cerrar notificación"
+              className="p-1.5 rounded-lg text-ink-400 dark:text-zinc-400 hover:text-ink-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </aside>
+        )}
       </div>
     </ProtectedRoute>
   );
