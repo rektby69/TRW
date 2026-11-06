@@ -677,69 +677,118 @@ This phase establishes the foundational Supabase database architecture with all 
 
 ---
 
-### Phase 2: Design System, Layouts & Top-Right Toasts
+### Phase 2: Session & Category Management
 
-#### 1. Notification System
-- [ ] Install and configure `sonner` with top-right positioning (`position="top-right"`).
-- [ ] Custom styling adhering to TRW brand palette (`sage`, `clay`, `ink`, `ivory`).
+> Aligns with tutorial Phase 2. Our `session_types` table serves as both category and type — no separate `categories` table is needed (by design). All items below are unstarted.
 
-#### 2. Shared UI Components (Shadcn pattern)
-- [ ] Accessible primitives: `Button`, `Input`, `Select`, `Dialog`, `Badge`, `Card`, `Table`.
-- [ ] Light & dark mode parity with CSS variables and Tailwind.
+#### 1. Session Types CRUD (replaces tutorial `categories` + `session_types`)
+- [ ] **Admin UI — List**: `/admin/session-types` — paginated table of all session types with status badge (active/inactive), name, slug, default duration, capacity, and price.
+- [ ] **Admin UI — Create**: `/admin/session-types/new` — form with name (ES/EN), slug, description (ES/EN), default duration, default capacity, intensity level, accent color, image upload.
+- [ ] **Admin UI — Edit**: `/admin/session-types/[id]/edit` — same form pre-populated; deactivation toggle (soft-delete, preserves history).
 
-#### 3. Navigation Shells
-- [ ] **Admin Layout**: Collapsible sidebar, active route highlights, studio info, user avatar.
-- [ ] **Client Layout**: Streamlined top navigation, active booking badge, quick profile menu.
+#### 2. Session Templates CRUD (tutorial `sessions` — recurring schedule layer)
+- [ ] **Admin UI — List**: `/admin/sessions/templates` — weekly view of active recurring templates, grouped by day, with instructor and capacity info.
+- [ ] **Admin UI — Create**: `/admin/sessions/templates/new` — form with session type, instructor, day of week, start time, duration, capacity, price, valid from/until dates, recurrence rule (JSONB builder: weekly, biweekly, custom dates).
+- [ ] **Admin UI — Edit**: `/admin/sessions/templates/[id]/edit` — edit template, deactivate, or set end date.
 
----
+#### 3. Availability Rules (tutorial: "Implement Availability Rules using JSONB recurrence rules")
+- [ ] **Recurrence rule builder UI** — visual day/time picker that generates the JSONB `recurrence_rule` stored on `session_templates`.
+- [ ] **Calendar Exceptions UI** — `/admin/availability`: mark specific dates as cancelled, rescheduled, or substitute-instructor on any template.
 
-### Phase 3: Client Experience & Booking Flow
+#### 4. Session Instances Management (tutorial `sessions` — bookable occurrences)
+- [ ] **Instance generation logic** — admin-triggered or automated generation of `session_instances` from active `session_templates` for a rolling N-week window.
+- [ ] **Admin UI — List**: `/admin/sessions` — filterable table (by date, type, instructor, status) of all concrete session instances.
+- [ ] **Admin UI — Create ad-hoc**: `/admin/sessions/new` — one-off session not linked to a template (workshops, special events).
+- [ ] **Admin UI — Edit**: `/admin/sessions/[id]/edit` — edit instance-level overrides (title, capacity, price, status, cancel reason).
 
-#### 1. Public Class Schedule
-- [ ] Live timetable displaying upcoming sessions filtered by discipline and instructor.
-- [ ] 14-day rolling advance booking window countdown indicators for future sessions.
-
-#### 2. Atomic Booking Flow
-- [ ] Wire atomic reservation via `create_booking_atomic` Postgres function.
-- [ ] Automatic promotion of user to `client` role upon first reservation.
-- [ ] In-person payment model (`pending_on_premise`).
-
-#### 3. Client Dashboard & Bookings
-- [ ] `/client/dashboard`: Next class countdown, studio announcements, quick cancel.
-- [ ] `/client/bookings` and `/client/bookings/[id]`: Booking details, status badge, calendar `.ics` download, payment guidance.
-
----
-
-### Phase 4: Admin Operational Management Suite
-
-#### 1. Operational Overview
-- [ ] `/admin/dashboard`: Studio health metrics (occupancy %, today's check-ins, pending payments).
-- [ ] Live daily class roster with progress counters.
-
-#### 2. Sessions Management (Slug-based Routes)
-- [ ] `/admin/sessions`: Filterable sessions data table.
-- [ ] `/admin/sessions/new`: New session instance creation form.
-- [ ] `/admin/sessions/[id]/edit`: Session edit route.
-- [ ] `/admin/sessions/[id]`: Detailed session roster, one-click attendance ("Attended"/"No-Show"), and payment toggle ("Paid on Premise").
-
-#### 3. Availability & Blackout Dates
-- [ ] `/admin/availability`: Weekly recurring template manager and holiday exception calendar.
-
-#### 4. Client Directory & Role Control
-- [ ] `/admin/clients` & `/admin/clients/[id]`: User directory, lifetime stats, role adjustment, and ban enforcement.
-
-#### 5. Reporting & Studio Configuration
-- [ ] `/admin/reporting`: Occupancy, popular classes, and projected revenue charts.
-- [ ] `/admin/settings`: Advance booking limits, cancellation cutoff hours, max active bookings.
+#### 5. Navigation Shells & UI Primitives (moved from original Phase 2)
+- [ ] Install and configure `sonner` with top-right positioning (`position="top-right"`). Custom styling: `sage`, `clay`, `ink`, `ivory` palette.
+- [ ] Shared accessible primitives (Shadcn pattern): `Button`, `Input`, `Select`, `Dialog`, `Badge`, `Card`, `Table`. Light & dark mode parity.
+- [ ] **Admin Layout**: Collapsible sidebar with active route highlights, studio info panel, user avatar. Routes: Dashboard, Sessions, Availability, Clients, Bookings, Reporting, Settings.
+- [ ] **Client Layout**: Streamlined top navigation with active booking badge and quick profile menu.
 
 ---
 
-### Phase 5: Verification, Auditing & Hardening
+### Phase 3: Booking Logic & Evolution
 
+> Aligns with tutorial Phase 3.
+
+#### 1. Client Booking Flow
+- [ ] **`/client/classes`**: Live timetable of upcoming `session_instances` filterable by discipline and instructor.
+- [ ] **Advance booking window**: Sessions beyond `studio_settings.booking_rules.advance_booking_limit_days` show disabled button with "Reservas abren el DD/MM" chip.
+- [ ] **Atomic booking action**: Wire `create_booking_atomic(session_id, user_id)` Postgres function — capacity lock, duplicate check, advance-limit validation, `booked_count` increment, booking reference generation (`YC-YYMM-XXXX`).
+- [ ] **In-person payment model**: New bookings created with `payment_status = 'pending_on_premise'`.
+
+#### 2. First Booking Promotion (tutorial: `user` → `client`)
+- [ ] DB trigger `tr_first_booking_promotion` already deployed — verify end-to-end: book as `user`, confirm role flips to `client`, check `user_roles_history` entry created.
+
+#### 3. Admin Dashboard Overview Widgets (tutorial: "Total Bookings, Active Clients")
+- [ ] `/admin/dashboard`: Real studio health metrics — occupancy %, today's check-ins, pending in-person payments.
+- [ ] Live daily class roster with per-session booking progress bar (`booked_count / max_slots`).
+- [ ] KPI widgets: Total Bookings (all-time), Active Clients (role = `client`), Active Sessions (scheduled), Pending Collections.
+
+#### 4. Client Dashboard & Booking Management
+- [ ] `/client/dashboard`: Next class countdown with instructor name, upcoming bookings grid, quick cancel button, "Pay on arrival" reminder.
+- [ ] `/client/bookings`: Categorized tabs — Upcoming / Past / Cancelled.
+- [ ] `/client/bookings/[id]`: Session details, payment instructions, "Add to Calendar (.ics)" button, cancel booking action (confirmation modal with cancellation policy).
+
+---
+
+### Phase 4: History & Logging
+
+> Aligns with tutorial Phase 4.
+
+#### 1. Auth Hook — Login History (tutorial: "Save entry in `login_history` on successful login")
+- [ ] Hook into Supabase `onAuthStateChange` for `SIGNED_IN` event — insert row into `user_login_history` (user_id, ip_address via edge function or client, user_agent, status = `'success'`).
+
+#### 2. Session History Triggers (tutorial: "Database Triggers for `session_history`")
+- [ ] DB trigger `AFTER UPDATE OR DELETE ON session_instances` — insert into `session_history` with action (`'rescheduled'`, `'cancelled'`, `'capacity_adjusted'`), `changed_by`, and `details` JSONB snapshot.
+
+#### 3. Booking History Triggers
+- [ ] DB trigger `AFTER UPDATE ON bookings` — insert into `booking_history` recording `old_booking_status`, `new_booking_status`, `old_payment_status`, `new_payment_status`, `changed_by`, and optional note.
+
+#### 4. Admin History Views (tutorial: "Master Booking History view for Admin")
+- [ ] `/admin/bookings`: Master booking management — searchable by client name, email, booking reference, or date. Inline payment status updater. Bulk actions (mark paid, export CSV).
+- [ ] `/admin/bookings/[id]`: Full booking timeline — status transitions from `booking_history`, payment collector sheet.
+
+---
+
+### Phase 5: Admin Controls & Reporting
+
+> Aligns with tutorial Phase 5.
+
+#### 1. User Management (tutorial: "Deletion and Role management")
+- [ ] `/admin/clients`: Directory of all users — filterable by role (`user`, `client`, `admin`) and status (`active`, `banned`, `rejected`). Actions: Change Role, Ban User, Delete Account.
+- [ ] `/admin/clients/[id]`: Client 360° profile — personal info, emergency contact, health notes, lifetime stats (total bookings, attendance rate, total spent), booking history, login history.
+
+#### 2. Reporting (tutorial: "Charts for session popularity using Recharts")
+- [ ] Install `recharts`.
+- [ ] `/admin/reporting`: Monthly occupancy %, most popular disciplines and instructors, cancellation rate, estimated collected vs pending revenue. Accessible Tailwind-themed Recharts components.
+
+#### 3. Settings Page (tutorial: "Manage `app_settings` inc. booking window")
+- [ ] `/admin/settings`: Manage `studio_settings` key-value store — advance booking limit (days), cancellation cutoff (hours), max active bookings per client, studio contact info and opening hours.
+
+---
+
+### Phase 6: Polish & Testing
+
+> Aligns with tutorial Phase 6, plus our hardening additions.
+
+#### 1. Notifications (tutorial: "Top-right toast notifications for all feedback")
+- [ ] Confirm `sonner` (installed in Phase 2) is wired to every success/error action across all client and admin pages — bookings, cancellations, profile saves, payment updates, role changes.
+
+#### 2. Loading States (tutorial: "Skeleton loading states for dashboards")
+- [ ] Skeleton loading components for admin dashboard KPIs, session list, client directory, and booking tables.
+- [ ] Skeleton for client dashboard upcoming bookings grid.
+
+#### 3. Mobile Optimization (tutorial: "Mobile optimization for dashboards")
+- [ ] Responsive layout verification: admin sidebar collapses to drawer on mobile; data tables scroll horizontally; booking cards stack vertically.
+
+#### 4. Verification & Hardening (our additions)
 - [ ] Multi-role authorization checks and immediate ban session invalidation.
-- [ ] Concurrency and double-booking stress testing.
+- [ ] Concurrency and double-booking stress testing against `create_booking_atomic`.
 - [ ] Sentry error boundary coverage across all routes.
-- [ ] Responsive UI verification across mobile, tablet, and desktop.
+- [ ] Responsive UI verification across mobile, tablet, and desktop viewports.
 
 ---
 
